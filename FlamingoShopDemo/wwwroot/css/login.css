@@ -1,0 +1,159 @@
+﻿:root {
+    --bg: #f3f0eb;
+    --card: #ffffff;
+    --accent: #c79a8b;
+    --accent-dark: #b18375;
+    --muted: #9b9b9b;
+    --radius: 20px;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter',sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.brand {
+    font-family: 'Playfair Display',serif;
+    letter-spacing: .12em;
+}
+
+/* ===== layout ===== */
+.login-wrapper {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 80px rgba(0,0,0,.08);
+    overflow: hidden;
+}
+
+/* ===== left visual ===== */
+.login-visual {
+    background: linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.15)), url("https://images.unsplash.com/photo-1526047932273-341f2a7631f9") center/cover;
+    padding: 40px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+    .login-visual h2 {
+        font-family: 'Playfair Display',serif;
+        font-size: 2rem;
+        margin-bottom: 6px;
+    }
+
+    .login-visual small {
+        opacity: .85
+    }
+
+/* ===== right form ===== */
+.login-form {
+    padding: 40px 36px;
+}
+
+    .login-form h3 {
+        font-family: 'Playfair Display',serif;
+        margin-bottom: 6px;
+    }
+
+.sub {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: 22px
+}
+
+label {
+    font-size: .75rem;
+    color: #777;
+}
+
+input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid #e6e6e6;
+    margin-bottom: 14px;
+    font-size: .85rem;
+}
+
+    input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+/* actions */
+.row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .75rem;
+    margin-bottom: 18px;
+}
+
+    .row-between a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+.btn-primary {
+    width: 100%;
+    border: none;
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--accent);
+    color: #fff;
+    font-size: .9rem;
+}
+
+    .btn-primary:hover {
+        background: var(--accent-dark)
+    }
+
+.divider {
+    text-align: center;
+    font-size: .75rem;
+    color: #aaa;
+    margin: 18px 0;
+}
+
+/* social */
+.social {
+    display: flex;
+    gap: 10px;
+}
+
+    .social button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px solid #eee;
+        background: #fff;
+        font-size: .75rem;
+        cursor: pointer;
+    }
+
+/* ===== responsive ===== */
+@media(max-width:768px) {
+    .login-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .login-visual {
+        min-height: 220px;
+        justify-content: center;
+        text-align: center;
+    }
+}

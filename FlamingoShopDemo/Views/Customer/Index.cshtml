@@ -1,0 +1,64 @@
+﻿@using FlamingoModel.Models
+@model ProductViewDto;
+
+<!-- HERO -->
+<section class="hero d-flex align-items-center">
+    <div class="container text-center hero-content">
+        <h1 class="display-5">สร้างสรรค์ · ปรับแต่ง · จัดส่ง</h1>
+        <button class="btn btn-soft mt-3">เลือกซื้อดอกไม้</button>
+    </div>
+</section>
+
+<!-- ICON -->
+<section class="container my-5">
+    <div class="row g-4 text-center">
+        <div class="col-6 col-md-3">
+            <div class="icon-circle mb-2"><i class="bi bi-heart"></i></div>
+            <small>ความรัก</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="icon-circle mb-2"><i class="bi bi-gift"></i></div>
+            <small>วันเกิด</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="icon-circle mb-2"><i class="bi bi-flower1"></i></div>
+            <small>ขอบคุณ</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="icon-circle mb-2"><i class="bi bi-feather"></i></div>
+            <small>แสดงความเสียใจ</small>
+        </div>
+    </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="container mb-5">
+    <!-- <h6 class="text-center mb-4">เลือกซื้อจากสินค้าแนะนำ</h6> -->
+@* 
+    <div class="row g-4">
+    </div> *@
+
+    <div class="row g-4" id="productList">
+        @foreach (var product in Model.Template)
+        {
+            var img = Model.Images.Where(x => x.RelationId == product.Id).FirstOrDefault();
+
+            <div class="col-12 col-md-3">
+                <div class="product-card text-center">
+                    <img src="@img?.Path">
+                    <p class="mt-3 mb-1">@product.Name</p>
+                    <small class="text-muted">@product.Price บาท</small><br>
+                    <button class="btn btn-sm btn-soft mt-2 add-cart-btn"
+                            data-name="@product.Name"
+                            data-img="@img?.Path"
+                            data-price="@product.Price"
+                            data-id="@product.Id">
+                        เพิ่มลงตะกร้า
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+

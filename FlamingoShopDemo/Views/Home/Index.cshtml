@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="login-wrapper">
+
+    <!-- LEFT -->
+    <div class="login-visual">
+        <h2 class="brand">FLAMINGO</h2>
+        <small>Premium flower delivery with care</small>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="login-form">
+        <h3>Welcome back</h3>
+        <div class="sub">Sign in to continue your order</div>
+        <form asp-action="Login" asp-controller="Home" method="post">
+            <label>Email / Telephone</label>
+            <input type="text" name="email" placeholder="you@email.com">
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••">
+
+            <div class="row-between">
+                <label>
+                    <input type="checkbox"> Remember me
+                </label>
+                <a href="#">Forgot password?</a>
+            </div>
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <div>
+                            @TempData["Error"]
+                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                }
+            <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        <div class="divider">or continue with</div>
+
+        <div class="social">
+            <button>Google</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var signInUrl = '@Url.Action("Login", "Home")';
+   
+
+</script>
+<script src="~/js/login.js" asp-append-version="true"></script>
+

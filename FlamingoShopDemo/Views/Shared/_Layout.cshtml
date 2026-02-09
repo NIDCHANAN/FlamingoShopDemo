@@ -1,0 +1,389 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FlamigoFlowerDemo</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (ViewBag.role == "admin")
+    {
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    }
+    else if (ViewBag.role == "customer")
+    {
+        <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+
+    }
+    else
+    {
+        <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    }
+
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ปุ่มวงกลมสีน้ำเงิน */
+    #scrollTopBtn {
+        display: none; /* ซ่อนไว้ก่อน */
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        z-index: 2000;
+        background-color: #white; /* สีน้ำเงิน */
+        color: white;
+        border: none;
+        outline: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: opacity 0.3s;
+    }
+
+        #scrollTopBtn:hover {
+            background-color: #white; 
+        }
+    </style>
+</head>
+
+<body>
+      @{
+            var action = ViewContext.RouteData.Values["action"]?.ToString();
+            var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+      }
+    @if (ViewBag.role == "admin" && controller != "Home")
+    {
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar -->
+            <aside id="sidebar">
+                <div class="sidebar-header">
+                    <img src="~/Image/logo.jpg" class="logo">
+                    <span class="logo-text">Flamingo</span>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="menu-item @(controller == "Monitor" ? "active" : "")">
+                        <a asp-controller="Monitor" asp-action="Index" class="menu-link">
+                            <i class="bi bi-tv-fill"></i>
+                            <span>คำสั่งซื้อ</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(controller == "Product" ? "active" : "")">
+                        <a asp-controller="Product" asp-action="Index" class="menu-link">
+                            <i class="bi bi-flower1"></i>
+                            <span>สินค้า</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(controller == "Discount" ? "active" : "")">
+                        <a asp-controller="Discount" asp-action="Index" class="menu-link">
+                            <i class="bi  bi-award-fill"></i>
+                            <span>โปรโมชั่น</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(controller == "User" ? "active" : "")">
+                        <a asp-controller="User" asp-action="Index" class="menu-link">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span>ผู้ใช้งาน</span>
+                        </a>
+                    </li>
+
+                    @*<li class="menu-item">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Analytics</span>
+                    </li>
+                    <li class="menu-item">
+                        <i class="bi bi-star"></i>
+                        <span>Review</span>
+                    </li> *@
+                </ul>
+            </aside>
+
+            <!-- Page Content -->
+            <div id="page-content">
+
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white shadow-sm px-4">
+                    <button class="btn btn-link text-pink" id="menu-toggle">
+                        <i class="bi bi-list fs-3"></i>
+                    </button>
+
+                    <div class="ms-auto d-flex align-items-center gap-4">
+                        <i class="bi bi-bell position-relative">
+                            <span class="badge bg-danger">12</span>
+                        </i>
+                        <i class="bi bi-chat-left-text position-relative">
+                            <span class="badge bg-danger">5</span>
+                        </i>
+
+                        @if (Context.Session.GetString("UserName") != null)
+                        {
+                             <div class="d-flex align-items-center gap-2">
+                                <img src="@Context.Session.GetString("UserImg") "
+                                        class="rounded-circle"
+                                        width="40"
+                                        height="40"
+                                        alt="User">
+
+                                <!-- Text: ซ่อนในจอเล็ก แสดงตั้งแต่ md ขึ้นไป -->
+                                <div class="d-none d-md-block">
+                                    <small class="text-muted">WelCome !</small><br>
+                                    <strong>@Context.Session.GetString("UserName")</strong>
+                                </div>
+                            </div>
+                        }
+                       
+                    </div>
+                </nav>
+
+                <!-- Content -->
+                <div class="container-fluid p-4">
+                    <main role="main" class="pb-3">
+                        @RenderBody()
+                    </main>
+                </div>
+
+                <!-- Contact To Admin -->
+                <button id="scrollTopBtn" title="Go to top">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+
+            </div>
+        </div>
+    }
+    else if ((controller != "Home" && action != "Index") || (controller != "Home" && action == "Index"))
+    {
+        <nav class="navbar navbar-expand-lg bg-white py-3 shadow-sm sticky-top">
+            <div class="container">
+
+                <!-- BRAND -->
+                <span class="navbar-brand brand fw-bold">Flamingo shop</span>
+
+                <!-- TOGGLER (mobile) -->
+                <button class="navbar-toggler border-0" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- MENU -->
+              
+
+                <div class="collapse navbar-collapse justify-content-between" id="mainNav">
+                    <ul class="navbar-nav gap-lg-4 mx-lg-auto text-center">
+                        <li class="nav-item @(controller == "Customer" && action == "Index" ? "active" : "")"><a class="nav-link"  asp-controller="Customer" asp-action="Index">ร้านค้า</a></li>
+                        <li class="nav-item @(controller == "Customer" && action == "CustomFlower" ? "active" : "")" ><a class="nav-link" asp-controller="Customer" asp-action="CustomFlower">โอกาสพิเศษ</a></li>
+                        @* <li class="nav-item"><a class="nav-link">เกี่ยวกับเรา</a></li> *@
+                    </ul>
+
+                    <!-- ACTIONS -->
+                    <div class="d-flex align-items-center gap-3 fs-5 justify-content-center">
+                        <i class="bi bi-search action-icon"></i>
+
+                        <!-- CART -->
+                        <div class="dropdown">
+                            <i class="bi bi-bag action-icon"
+                                role="button"
+                                data-bs-toggle="dropdown"></i>
+
+                            <span id="cartCount"
+                                  class="d-flex justify-content-center position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                  style="display:none; font-size: 15px;">
+                                0
+                            </span>
+
+                            <div class="dropdown-menu dropdown-menu-end p-3 shadow cart-dropdown">
+                                <div id="cartItems"></div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span>Subtotal</span>
+                                    <strong class="text-danger" id="cartTotal">฿2,990</strong>
+                                </div>
+
+                                @* <a href="/cart" class="btn btn-outline-dark w-100 mb-2">View Cart</a> *@
+                                <a href="/checkout" class="btn btn-outline-dark w-100">Checkout</a>
+                            </div>
+                        </div>
+
+                        <!-- LOGIN -->
+                        <a  asp-action="Index" asp-controller="Home"
+                            class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center gap-2 btn-login">
+                            <i class="bi bi-person"></i>
+                            <span class="d-none d-lg-inline">Login</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <div class="container-fluid p-4">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <!-- FOOTER (Luxury Style) -->
+        <footer class="footer-luxury pt-5 mt-5">
+            <div class="container">
+
+            <div class="row gy-4 align-items-start">
+
+                <!-- BRAND -->
+                <div class="col-12 col-md-4">
+                <h5 class="brand mb-3">Flamingo shop</h5>
+                <p class="text-muted small mb-3">
+                    ร้านดอกไม้พรีเมียมที่คัดสรรความงดงาม<br>
+                    เพื่อทุกช่วงเวลาที่มีความหมายของคุณ
+                </p>
+
+                <div class="d-flex gap-3">
+                    <a href="#" class="social-icon">
+                    <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="https://web.facebook.com/FlamingFlowerBalloonShop?locale=th_TH" class="social-icon">
+                    <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://lin.ee/en2DKTa" class="social-icon">
+                    <i class="bi bi-line"></i>
+                    </a>
+                </div>
+                </div>
+
+                <!-- LINKS -->
+                <div class="col-6 col-md-4">
+                <h6 class="mb-3">บริการลูกค้า</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#">ติดต่อเรา</a></li>
+                    <li><a href="#">การจัดส่งสินค้า</a></li>
+                    <li><a href="#">การคืนสินค้า</a></li>
+                    <li><a href="#">คำถามที่พบบ่อย</a></li>
+                </ul>
+                </div>
+
+                <!-- CONTACT -->
+                <div class="col-6 col-md-4">
+                <h6 class="mb-3">ติดต่อร้าน</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2">
+                    <i class="bi bi-geo-alt me-2"></i>กรุงเทพมหานคร
+                    </li>
+                    <li class="mb-2">
+                    <i class="bi bi-telephone me-2"></i>02-123-4567
+                    </li>
+                    <li>
+                    <i class="bi bi-envelope me-2"></i>info@flamingoshop.com
+                    </li>
+                </ul>
+                </div>
+
+            </div>
+
+            <!-- DIVIDER -->
+            <hr class="lux-divider my-4">
+
+            <!-- COPYRIGHT -->
+            <div class="text-center pb-4">
+                <small class="text-muted">
+                © 2026 Flamingo shop · Crafted with care
+                </small>
+            </div>
+
+            </div>
+        </footer>
+
+
+        <!-- CART OFFCANVAS (Shopee style) -->
+        @* <div class="offcanvas offcanvas-end" tabindex="-1" id="cartCanvas">
+            <div class="offcanvas-header border-bottom">
+            <h5 class="mb-0">
+                <i class="bi bi-bag me-2"></i>ตะกร้าสินค้า
+            </h5>
+            <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+
+            <div class="offcanvas-body p-3">
+                <div id="cartItems"></div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="border-top p-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-medium">ยอดรวม</span>
+                <span class="fw-bold text-danger" id="cartTotal">0 บาท</span>
+            </div>
+            <button class="btn btn-soft w-100">ไปชำระเงิน</button>
+            </div>
+        </div> *@
+
+
+            <!-- Contact To Admin -->
+        <button type="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="ติดต่อพนักงาน" id="scrollTopBtn" title="ContactToAdmin">
+            <i class="bi bi-line text-success"></i>
+        </button>
+    }
+    else
+    {
+            <div class="container-fluid p-4">
+            <main role="main" class="pb-3 d-flex justify-content-center">
+                @RenderBody()
+            </main>
+        </div>
+        
+    }
+
+    @* <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">FlamigoFlowerDemo</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div> *@
+
+    @* <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - FlamigoFlowerDemo - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer> *@
+
+   
+    <script>
+        var deletedImageUrl = '@Url.Action("DeleteImages", "Base")';
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if ((action != "Index" && controller != "Home") || (action == "Index" && controller != "Home"))
+    {
+      <script src="~/js/site.js" asp-append-version="true"></script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

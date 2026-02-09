@@ -1,0 +1,133 @@
+﻿
+<div class="container my-5">
+    <div class="app p-4 p-md-5">
+
+        <div class="row g-5 align-items-start">
+
+            <!-- PREVIEW -->
+            <div class="col-lg-6">
+                <div class="sticky-top" style="top:90px">
+                    <h4 class="mb-1">ออกแบบช่อดอกไม้ในฝัน</h4>
+                    <small class="text-muted">เลือกดอกไม้ โทนสี และจำนวนตามใจคุณ</small>
+
+                    <div class="preview mt-4" id="wrapPreview">
+                        <img id="aiResult" />
+                        @* <img id="bouquetImg"> *@
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTIONS -->
+            <div class="col-lg-6">
+
+                <div class="card-ui">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge rounded-pill text-bg-light">STEP 1</span>
+                        <small>เลือกดอกไม้</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <div class="flower-option active" data-type="rose">
+                            <i class="bi bi-flower1 fs-3"></i>
+                            <div>กุหลาบ</div>
+                        </div>
+                        <div class="flower-option" data-type="lily">
+                            <i class="bi bi-flower2 fs-3"></i>
+                            <div>ลิลลี่</div>
+                        </div>
+                        <div class="flower-option" data-type="mix">
+                            <i class="bi bi-stars fs-3"></i>
+                            <div>ผสม</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-ui">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge rounded-pill text-bg-light">STEP 2</span>
+                        <small>จำนวนดอก: <span id="stemCount">12</span> ดอก</small>
+                    </div>
+                    <input type="range" min="6" max="30" step="2" value="12" class="form-range" id="stemRange">
+                </div>
+
+                <div class="card-ui">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge rounded-pill text-bg-light">STEP 3</span>
+                        <small>เลือกกระดาษห่อ</small>
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <div class="color-dot active" style="background:#f2c1cc"></div>
+                        <div class="color-dot" style="background:#e6e6e6"></div>
+                        <div class="color-dot" style="background:#c9b6a2"></div>
+                    </div>
+                </div>
+
+                <div class="card-ui">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge rounded-pill text-bg-light">OPTIONAL</span>
+                        <small>เพิ่มพิเศษ</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input extra" data-price="99" type="checkbox"> การ์ดอวยพร
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input extra" data-price="199" type="checkbox"> ของขวัญ
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <!-- SUMMARY CARD -->
+        <div class="card-ui mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <small class="text-muted">ราคารวม</small>
+                    <div class="fs-4 fw-semibold text-danger" id="totalPrice">0 บาท</div>
+                </div>
+                <i class="bi bi-receipt fs-2 text-muted"></i>
+            </div>
+
+            <button class="btn btn-soft w-100 py-2 mt-2" onclick="addToCart()">
+                <i class="bi bi-bag-plus me-1"></i> เพิ่มลงตะกร้า
+            </button>
+
+            <small class="text-muted d-block text-center mt-2">
+                ราคาจะอัปเดตอัตโนมัติเมื่อเปลี่ยนตัวเลือก
+            </small>
+        </div>
+
+    </div>
+</div>
+
+<!-- RECOMMEND -->
+<div class="container my-5">
+    <h5 class="brand mb-1">ช่อดอกไม้แนะนำ</h5>
+    <small class="text-muted mb-3 d-block">เลือกเป็นแบบเริ่มต้นแล้วปรับแต่งต่อได้</small>
+
+    <div class="d-flex gap-3 overflow-auto pb-2">
+        <div class="card-ui recommend" data-flower="rose" data-stems="12">
+            <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9">
+            <div class="mt-2 fw-semibold">Classic Rose</div>
+            <small class="text-muted">12 ดอก</small>
+            <div class="text-danger fw-semibold">1,599 บาท</div>
+        </div>
+
+        <div class="card-ui recommend" data-flower="lily" data-stems="18">
+            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93">
+            <div class="mt-2 fw-semibold">Pure Lily</div>
+            <small class="text-muted">18 ดอก</small>
+            <div class="text-danger fw-semibold">1,999 บาท</div>
+        </div>
+
+        <div class="card-ui recommend" data-flower="mix" data-stems="24">
+            <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6">
+            <div class="mt-2 fw-semibold">Pastel Mix</div>
+            <small class="text-muted">24 ดอก</small>
+            <div class="text-danger fw-semibold">2,599 บาท</div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/js/customFlower.js" asp-append-version="true"></script>

@@ -1,0 +1,716 @@
+﻿@using FlamingoModel.Models
+@model ProductViewDto;
+
+
+<div class="container-fluid py-4">
+
+<div id="ProductList">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-pink "><i class="bi bi-box-seam-fill"></i> คลังสินค้า</h4>
+        <div>
+            <button class="btn btn-flamingo px-4"
+                    data-bs-toggle="modal"
+                    data-bs-target="#groupModal">
+                + Add Group
+            </button>
+
+            <button class="btn btn-flamingo-light px-4"
+                    onclick="onClickShowTemplate(0)">
+                + Add Template
+            </button>
+        </div>
+       
+
+    </div>
+
+    <div class="accordion" id="materialAccordion">
+
+        @foreach (var item in Model.Groups)
+        {
+            <div class="accordion-item border-0 mb-4">
+                <h2 class="accordion-header d-flex align-items-center justify-content-between">
+                    <button class="accordion-button collapsed rounded-4 fw-semibold flex-grow-1"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@item.NameCategory">
+                        <i class="bi bi-flower1 me-2 text-pink"></i> @item.NameCategory
+                    </button>
+
+                    <div class="form-check form-switch ms-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               @(item.StatusUse == 1 ? "checked" : "")
+                               onchange="toggleCategoryStatus(@item.Id, this.checked)">
+                    </div>
+                </h2>
+
+                <div id="@item.NameCategory" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        <div class="material-card">
+                            <!-- Items Grid -->
+                            <div class="row g-3">
+                                <!-- Item Card -->
+                                @foreach (var product in Model.Products.Where(x => x.CategoryGroupId == item.Id))
+                                {
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="material-item h-100" data-stock="@product.Qty">
+                                            @if (product.Qty <= 10)
+                                            {
+                                                <div class="stock-badge">LOW STOCK</div>
+                                            }
+
+
+                                            @{
+                                                var images = Model.Images
+                                                .Where(x => x.RelationId == product.Id)
+                                                .ToList();
+                                            }
+
+                                            @if (images.Any())
+                                            {
+                                                <div class="image-hover-wrapper mb-2">
+                                                    <img src="@images[0].Path" class="material-img">
+
+                                                    @if (images.Count > 1)
+                                                    {
+                                                        <div class="hover-gallery">
+                                                            @foreach (var img in images.Skip(1))
+                                                            {
+                                                                <img src="@img.Path">
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="image-hover-wrapper mb-2">
+                                                    <img src="/uploads/olia-gozha-9A_peGrSbZc-unsplash.jpg" class="material-img">
+                                                </div>
+                                            }
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="fw-semibold">@product.NameCategory</div>
+
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input text-secondary opacity-75"
+                                                           type="checkbox"
+                                                           role="switch"
+                                                           @(product.StatusUse == 1 ? "checked" : "")
+                                                           onchange="toggleProductStatus(@product.Id, this.checked)">
+                                                </div>
+                                            </div>
+
+                                            <div class="color-badges mb-1">
+                                                <span class="badge-color" style="background:#d32f2f"></span>
+                                                <span class="badge-color" style="background:#f06292"></span>
+                                            </div>
+
+                                            <div class="stock-warning">คงเหลือ <span class="fw-bold">@product.Qty </span> </div>
+
+                                            <div class="d-flex gap-2 mt-2">
+                                                <button class="btn btn-sm btn-light  w-100" data-bs-toggle="modal" data-bs-target="#adjustModal_@product.Id">Adjust Stock</button>
+                                                <button class="btn btn-sm btn-light w-100 text-warning" data-bs-toggle="modal"
+                                                        data-bs-target="#editItemModal_@product.Id">
+                                                    Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-light text-danger w-100" onclick="deletedProduct(@product.Id);">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Add Button -->
+                            <button class="btn btn-sm btn-outline-secondary mt-3"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#itemModal" onclick="showModalItem(@item.Id);">
+                                + Add Product
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div id="TemplateList" class="d-none">
+
+     <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-pink mb-0"><i class="bi bi-clipboard-fill"></i> ตัวอย่างสินค้า</h4>
+        <div>
+            <button class="btn btn-flamingo px-4"
+                    data-bs-toggle="modal"
+                    data-bs-target="#templateModal">
+                + Add Template Group
+            </button>
+
+            <button class="btn btn-flamingo-light px-4"
+                    onclick="onClickShowTemplate(1)">
+                + Add Group
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>สินค้า</th>
+                    <th>รายละเอียด</th>
+                    <th>ราคา</th>
+                    <th>ยอดขาย</th>
+                    <th class="text-center">สถานะ</th>
+                    <th class="text-end">การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var temp in Model.Template)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                    @{
+                                        var imagesTemp = Model.Images
+                                        .Where(x => x.RelationId == temp.Id && x.TypeImage == 2)
+                                        .ToList();
+                                    }
+
+                                    @if (imagesTemp.Any())
+                                    {
+                                        <div class="template-hover-box me-2">
+                                            <img src="@imagesTemp[0].Path" class="template-image">
+
+                                            @if (imagesTemp.Count > 1)
+                                            {
+                                                <div class="template-preview">
+                                                @foreach (var img in imagesTemp.Skip(1))
+                                                    {
+                                                        <img src="@img.Path">
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                    <div class="template-hover-box me-2">
+                                            <img src="/uploads/olia-gozha-9A_peGrSbZc-unsplash.jpg" class="material-img">
+                                        </div>
+                                    }
+                                <div>
+                                    <div class="fw-semibold">@temp.Name</div>
+                                    <small class="text-muted">ID: @temp.Id</small>
+                                </div>
+                            </div>
+                        </td>
+                           @*  <td>
+                                16
+                            <br> *@
+                        <td>
+                            @foreach (var detailTemp in Model.TempDetail.Where(x => x.TemplateFlowerId == temp.Id))
+                            {
+                                <small class="text-danger">@detailTemp.Qty.ToString("N0") - @detailTemp.NameCategory</small>
+                            }
+                         </td>
+
+                        @* @{
+                            decimal discountPercent = ViewBag.PercenCal;
+                            decimal finalPrice = temp.Price * (100 - discountPercent) / 100;
+                            <td>@temp.Price<br><small class="text-muted">฿@finalPrice · 10%</small></td>
+
+                        } *@
+                        <td>@temp.Price</td>
+                        <td>6410<br><small class="text-muted">1 yr 2 mo</small></td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+
+                                <!-- Switch -->
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           @(temp.StatusUse == 1 ? "checked" : "")
+                                           onchange="toggleTemplateStatus(@temp.Id, this.checked)">
+                                </div>
+
+                                @if (temp.StatusUse == 1)
+                                {
+                                    <span class=" status-active">ใช้งาน</span>
+                                }
+                                else
+                                {
+                                        <span class=" status-inactive">ปิดการใช้งาน</span>
+                                }
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="action-group">
+                                <button class="icon-btn edit" type="submit" data-bs-toggle="modal"
+                                        data-bs-target="#editTemplateModal_@temp.Id">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="icon-btn delete" onclick="deletedTemplate(@temp.Id);">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+
+
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+   
+</div>
+
+
+<div class="modal fade" id="groupModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-semibold">Add Group</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <label class="form-label">Group Name</label>
+                <input class="form-control" id="txtGroupName" value="" placeholder="เช่น ดอกไม้ ริบบิ้น กระดาษ">
+            </div>
+
+            <div class="modal-footer border-0">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-flamingo px-4" onclick="onClickSaveGroup()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="itemModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-semibold">Add Product</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="file" id="imageUpload" multiple accept="image/*">
+                <div id="imagePreview" class="d-flex gap-2 flex-wrap mt-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label">Material Name</label>
+                    <input class="form-control" id="txtProductName"
+                           placeholder="เช่น ดอกกุหลาบแดง">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Stock</label>
+                    <input type="number" id="txtStock" class="form-control">
+                </div>
+
+                 <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <input type="number" id="txtPrice" class="form-control">
+                </div>
+
+            </div>
+
+            <div class="modal-footer border-0">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-flamingo px-4" onclick="onClickSaveProduct();">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var product in Model.Products)
+{
+    <div class="modal fade" id="editItemModal_@product.Id" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-semibold">Edit Product</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="oldImages_@product.Id"
+                         class="d-flex gap-2 flex-wrap mb-3">
+                        @foreach (var img in Model.Images.Where(x => x.RelationId == product.Id))
+                        {
+                            <div class="position-relative">
+                                <img src="@img.Path" class="preview-img">
+
+                                <button type="button"
+                                        class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                        onclick="removeOldImage(@img.Id)">
+                                    ✕
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <input type="file"
+                           id="imageUpload_@product.Id"
+                           multiple
+                           accept="image/*"
+                           onchange="previewImages(@product.Id)">
+
+                    <div id="imagePreview_@product.Id"
+                         class="d-flex gap-2 flex-wrap mt-3"></div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label">Material Name</label>
+                        <input class="form-control"
+                               id="txtProductName_@product.Id"
+                               value="@product.NameCategory">
+                    </div>
+
+                    @* <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number"
+                               id="txtStock_@product.Id"
+                               class="form-control"
+                               value="@product.Qty">
+                    </div> *@
+
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-flamingo px-4"
+                            onclick="onClickUpdateProduct(@product.Id);">
+                        Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+@foreach (var product in Model.Products)
+{
+    <div class="modal fade" id="adjustModal_@product.Id" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-semibold">Adjust Stock</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Material Name</label>
+                        <input class="form-control bg-secondary-subtle" readonly
+                               id="txtProductName_@product.Id"
+                               value="@product.NameCategory">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number"
+                               id="txtAdjStock_@product.Id"
+                               class="form-control"
+                               value="">
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="number"
+                               id="txtAdjPrice_@product.Id"
+                               class="form-control" value="" />
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-flamingo px-4"
+                            onclick="onClickAdjustProduct(@product.Id);">
+                        Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">จัดช่อดอกไม้</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- ข้อมูลหลัก -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">ชื่อช่อ</label>
+                        <input class="form-control" id="bouquetName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">ราคา</label>
+                        <input type="number" class="form-control" id="bouquetPrice">
+                    </div>
+                </div>
+
+                <!-- แนบรูป -->
+                <div class="mb-4">
+                    <label class="form-label">รูปช่อดอกไม้</label>
+                    <input type="file" class="form-control" id="bouquetImage">
+                </div>
+                <div id="imagePreviewBouquet" class="d-flex gap-2 flex-wrap mt-3"></div>
+
+
+                <hr>
+
+                <!-- กลุ่มต่าง ๆ -->
+                @foreach (var group in Model.Groups)
+                {
+                    <div class="mb-4">
+                        <h6 class="fw-semibold">@group.NameCategory</h6>
+
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50%">รายการ</th>
+                                    <th width="40%">จำนวน</th>
+                                    <th width="10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="group_@group.Id">
+                                <!-- row แรก -->
+                                <tr>
+                                    <td>
+                                        <select class="form-select item"
+                                                data-group="@group.Id">
+                                            <option value="">-- เลือก --</option>
+                                            @foreach (var item in Model.Products.Where(x => x.CategoryGroupId == group.Id))
+                                            {
+                                                <option value="@item.Id">@item.NameCategory</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control qty"
+                                               min="1" value="1">
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="removeRow(this)">
+                                            ✕
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <button class="btn btn-sm btn-outline-primary"
+                                onclick="addRow(@group.Id)">
+                            + เพิ่มรายการ
+                        </button>
+                    </div>
+                }
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button class="btn btn-flamingo" onclick="saveBouquet()">บันทึกช่อ</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@foreach (var temp in Model.Template)
+{
+    <div class="modal fade" id="editTemplateModal_@temp.Id" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">จัดช่อดอกไม้</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- ข้อมูลหลัก -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">ชื่อช่อ</label>
+                            <input class="form-control" id="upDateBouquetName_@temp.Id" value="@temp.Name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ราคา</label>
+                            <input type="number" class="form-control" id="upDateBouquetPrice_@temp.Id" value="@temp.Price">
+                        </div>
+                    </div>
+
+                     <div id="oldImages_@temp.Id"
+                         class="d-flex gap-2 flex-wrap mb-3">
+                        @foreach (var img in Model.Images.Where(x => x.RelationId == temp.Id && x.TypeImage == 2))
+                        {
+                            <div class="position-relative">
+                                <img src="@img.Path" class="preview-img">
+
+                                <button type="button"
+                                        class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                        onclick="removeOldImage(@img.Id)">
+                                    ✕
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- แนบรูป -->
+                    <div class="mb-4">
+                        <label class="form-label">รูปช่อดอกไม้</label>
+                        <input type="file" class="form-control edit-input-list" >
+                    </div>
+                    <div  class="d-flex gap-2 flex-wrap mt-3 edit-preview-list"></div>
+
+                    <hr>
+
+                    <!-- กลุ่มต่าง ๆ -->
+                    @foreach (var group in Model.Groups)
+                    {
+                        <div class="mb-4">
+                            <h6 class="fw-semibold">@group.NameCategory</h6>
+
+                            <table class="table table-sm align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="50%">รายการ</th>
+                                        <th width="40%">จำนวน</th>
+                                        <th width="10%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="editGroup_@group.Id">
+                                    <tr>
+                                        <td>
+                                            <select class="form-select item"
+                                                    data-group="@group.Id">
+                                                <option value="">-- เลือก --</option>
+                                                @foreach (var item in Model.Products.Where(x => x.CategoryGroupId == group.Id))
+                                                {
+                                                    <option value="@item.Id">@item.NameCategory</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control qty"
+                                                   min="1" value="1">
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeRow(this)">
+                                                ✕
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                        @foreach (var res in Model.TempDetail
+                                                 .Where(x => x.TemplateFlowerId == temp.Id && x.CategoryGroupId == group.Id))
+                                        {
+                                            <tr class="edit-row">
+                                                <td>
+                                                    <select class="form-select item"
+                                                            data-group="@group.Id">
+                                                        <option value="">-- เลือก --</option>
+
+                                                        @foreach (var item in Model.Products.Where(x => x.CategoryGroupId == group.Id))
+                                                        {
+                                                            <option value="@item.Id"
+                                                                    selected="@(item.Id == res.CategoryDetailId)">
+                                                                @item.NameCategory
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </td>
+
+                                                <td>
+                                                    <input type="number"
+                                                           class="form-control qty"
+                                                           min="1"
+                                                           value="@res.Qty">
+                                                </td>
+
+                                                <td>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            onclick="removeRowEdit(this)">
+                                                        ✕
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                </tbody>
+                             </table>
+
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="addRowEdit(this, @group.Id)">
+                                + เพิ่มรายการ
+                            </button>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button class="btn btn-flamingo" onclick="onClickUpdateBouquet(this, @temp.Id)">บันทึกช่อ</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+
+
+
+<script>
+    var addGroupUrl = '@Url.Action("AddGroup", "Product")';
+    var addProductUrl = '@Url.Action("AddProduct", "Product")';
+    var addTemplateUrl = '@Url.Action("AddTemplate", "Product")';
+    var adjustProductUrl = '@Url.Action("AdjustProductStatus", "Product")';
+
+    var updateProductUrl = '@Url.Action("UpdateProduct", "Product")';
+    var updateTempUrl = '@Url.Action("UpdateTemplate", "Product")';
+    var updateStatusGroupUrl = '@Url.Action("UpdateGroupStatus", "Product")';
+    var updateStatusProductUrl = '@Url.Action("UpdateProductStatus", "Product")';
+    var updateStatusTempUrl = '@Url.Action("UpdateTempStatus", "Product")';
+
+    var deletedProductUrl = '@Url.Action("DeleteProduct", "Product")';
+    var deletedTemplateUrl = '@Url.Action("DeleteTemplate", "Product")';
+</script>
+<script src="~/js/product.js" asp-append-version="true"></script>

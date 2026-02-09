@@ -1,0 +1,133 @@
+﻿<div class="container-fluid py-4">
+
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-pink"> 📋 รายการคำสั่งซื้อ</h4>
+        <div class="order-date-filter">
+            <i class="bi bi-calendar-event me-2"></i>
+            <input type="date" id="orderDateFilter">
+        </div>
+    </div>
+
+<div class="row g-4">
+    <!-- Card 1 -->
+    <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
+        <div class="order-card" data-status="2" data-order-id="Y34XDHR">
+            <div class="order-header">
+                <div class="order-id">ORDER #Y34XDHR</div>
+                <small class="text-pink fw-bold">01/13/18</small>
+            </div>
+
+            <div class="tracking">
+                ลูกค้า : <strong>ทดสอบ ระบบ</strong>
+            </div>
+
+            <div class="progress-wrapper">
+                <div class="progress-step"><i class="bi bi-check fs-2"></i></div>
+                <div class="progress-step"><i class="bi bi-check"></i></div>
+                <div class="progress-step"><i class="bi bi-check"></i></div>
+                <div class="progress-step"><i class="bi bi-check"></i></div>
+            </div>
+
+            <div class="step-labels  mb-3">
+                <div class="step-label"><i class="bi bi-card-checklist"></i><br>Processed</div>
+                <div class="step-label"><i class="bi bi-box"></i><br>Shipped</div>
+                <div class="step-label"><i class="bi bi-truck"></i><br>En Route</div>
+                <div class="step-label"><i class="bi bi-shop"></i><br>Arrived</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <!-- Dropdown Status -->
+                <div class="dropdown w-100">
+                    <button class="btn btn-sm btn-status dropdown-toggle w-100"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        เปลี่ยนสถานะ
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li><a class="dropdown-item" href="#" data-status="1">Processed</a></li>
+                        <li><a class="dropdown-item" href="#" data-status="2">Shipped</a></li>
+                        <li><a class="dropdown-item" href="#" data-status="3">En Route</a></li>
+                        <li><a class="dropdown-item" href="#" data-status="4">Arrived</a></li>
+                    </ul>
+                </div>
+
+                <!-- Detail Button -->
+                <button class="btn btn-sm btn-detail w-100">
+                    <i class="bi bi-eye me-1"></i> ดูรายละเอียด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- อีก 3 ใบ (copy ใช้ได้เลย) -->
+    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
+    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
+    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
+
+</div>
+
+</div>
+
+<!-- Detail Card (อยู่นอก col แต่ใน row เดียวกัน) -->
+<div class="col-12 d-none order-detail" id="detail-Y34XDHR">
+    <div class="order-card mt-3 order-detail-card">
+
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="detail-icon me-2">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <h6 class="mb-0 fw-semibold">รายละเอียดคำสั่งซื้อ</h6>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Product List -->
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-box-seam me-2"></i>รายการสินค้า
+                    </div>
+
+                    <ul class="product-list">
+                        <li>
+                            <span>ช่อที่ 1</span>
+                            <span class="qty">x1</span>
+                        </li>
+                        <li>
+                            <span>ช่อที่ 2</span>
+                            <span class="qty">x2</span>
+                        </li>
+                        <li>
+                            <span>ช่อที่ 3</span>
+                            <span class="qty">x5</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-geo-alt me-2"></i>ที่อยู่จัดส่ง
+                    </div>
+
+                    <div class="address-box">
+                        <div class="fw-semibold">คุณสมหญิง ใจดี</div>
+                        <div>99/9 ถนนสุขุมวิท</div>
+                        <div>แขวงคลองตัน เขตวัฒนา</div>
+                        <div>กรุงเทพฯ 10110</div>
+                        <div class="phone">
+                            <i class="bi bi-telephone me-1"></i>089-999-9999
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/js/order.js" asp-append-version="true"></script>

@@ -1,0 +1,318 @@
+﻿@using FlamingoModel.Models
+@model UserViewDto;
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-pink">
+            <i class="bi bi-people"></i> จัดการผู้ใช้งาน
+        </h4>
+        <button class="btn btn-flamingo" data-bs-toggle="modal" data-bs-target="#userModal">
+            <i class="bi bi-plus-lg"></i> เพิ่มผู้ใช้งาน
+        </button>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- User Card -->
+        @foreach(var user in Model.User.OrderBy(x=>x.Role))
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="user-card-grid">
+                    @{
+                        var images = Model.Images
+                                .Where(x => x.RelationId == user.Id)
+                                .FirstOrDefault();
+
+                        var active = user.Blacklist == 1 ? "inactive" : "active";
+                    }
+
+                    @if (images != null)
+                    {
+                        <div class="user-top image-hover-wrapper mb-2">
+                            <img src="@images.Path" class="user-avatar-lg">
+                            <span class="status-dot @active"></span>
+                            @* @if (images.Count > 1)
+                            {
+                                <div class="hover-gallery">
+                                    @foreach (var img in images.Skip(1))
+                                    {
+                                        <img src="@img.Path">
+                                    }
+                                </div>
+                            } *@
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="user-top">
+                            <img src="https://i.pravatar.cc/80?img=5" class="user-avatar-lg">
+                            <span class="status-dot @active"></span>
+                        </div>
+                    }
+
+                   
+
+                    <div class="user-body text-center">
+                        <h6 class="mb-0 fw-semibold">@user.Name</h6>
+                        <small class="text-muted">@user.Email</small> <br />
+                    <small class="text-muted">
+                        @(string.IsNullOrEmpty(user.Telephone) || user.Telephone.Length < 4
+                                                ? user.Telephone
+                                                : user.Telephone.Substring(0, 3) + "-" + user.Telephone.Substring(3))
+                    </small>
+
+                        <div class="role-badge admin mt-2">@(user.Role == 0 ? "Admin" : "Customer")</div>
+                    </div>
+
+                    <div class="user-actions">
+                        <button class="icon-btn edit" type="submit" data-bs-toggle="modal"
+                                data-bs-target="#editUserModal_@user.Id">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="icon-btn lock" onclick="onClickBlackList(@user.Id)"><i class="bi bi-lock"></i></button>
+                        <button class="icon-btn delete" onclick="onClickDeleteUser(@user.Id)"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        }
+        
+
+    </div>
+</div>
+
+
+<!-- User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content user-modal">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-pink">
+                    <i class="bi bi-person-plus"></i> เพิ่ม ผู้ใช้งาน
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="row g-3">
+
+                        <input type="file" id="imageUpload" multiple accept="image/*">
+                         <div id="imagePreview" class="d-flex gap-2 flex-wrap mt-3"></div>
+
+                        <!-- Name -->
+                        <div class="col-md-6">
+                            <label class="form-label">ชื่อผู้ใช้งาน</label>
+                            <input type="text" id="txtName" class="form-control" placeholder="ชื่อ - นามสกุล" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label class="form-label">อีเมล</label>
+                            <input type="email" id="txtEmail"  class="form-control" placeholder="example@email.com" required>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="col-md-6">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="passwordInput" placeholder="อย่างน้อย 8 ตัว">
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            @* <small class="text-muted">เว้นว่างไว้หากไม่ต้องการเปลี่ยน</small> *@
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label class="form-label">เบอร์โทร</label>
+                            <input type="tel" id="txtTelephone"  class="form-control" maxlength="10" placeholder="089xxxxxxx">
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            <label class="form-label">ที่อยู่</label>
+                            <textarea class="form-control" id="txtAddress" rows="3" placeholder="ที่อยู่ผู้ใช้งาน"></textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-6">
+                            <label class="form-label">สถานะ</label>
+                            <select class="form-select" id="selectStatus">
+                                <option value="1">ใช้งาน</option>
+                                <option value="0">ปิดใช้งาน</option>
+                            </select>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="col-md-6">
+                            <label class="form-label">บทบาท</label>
+                            <select class="form-select" id="selectRole">
+                                <option value="0">Admin</option>
+                                <option value="1">Staff</option>
+                                <option value="2">User</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button class="btn btn-flamingo" type="button" form="userForm" onclick="onClickSaveUser(event)">
+                    บันทึกข้อมูล
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@foreach (var userEdit in Model.User)
+{
+    <div class="modal fade" id="editUserModal_@userEdit.Id" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content user-modal">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-pink">
+                        <i class="bi bi-pencil"></i> แก้ไข ผู้ใช้งาน
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="row g-3">
+
+                            <div id="oldImages_@userEdit.Id"
+                                 class="d-flex gap-2 flex-wrap mb-3">
+                                @foreach (var img in Model.Images.Where(x => x.RelationId == userEdit.Id))
+                                {
+                                    <div class="position-relative">
+                                        <img src="@img.Path" class="preview-img">
+
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                                                onclick="removeOldImage(@img.Id)">
+                                            ✕
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <input type="file"
+                                   id="imageUpload_@userEdit.Id"
+                                   multiple
+                                   accept="image/*"
+                                   onchange="previewImages(@userEdit.Id)">
+
+                            <div id="imagePreview_@userEdit.Id"
+                                 class="d-flex gap-2 flex-wrap mt-3"></div>
+
+                            <!-- Name -->
+                            <div class="col-md-6">
+                                <label class="form-label">ชื่อผู้ใช้งาน</label>
+                                <input type="text" id="txtEditName_@userEdit.Id" class="form-control" value="@userEdit.Name" placeholder="ชื่อ - นามสกุล" required>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label class="form-label">อีเมล</label>
+                                <input type="email" id="txtEditEmail_@userEdit.Id" class="form-control" value="@userEdit.Email" placeholder="example@email.com" required>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="col-md-6">
+                                <label class="form-label">รหัสผ่าน</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="passwordEditInput_@userEdit.Id" placeholder="อย่างน้อย 8 ตัว">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                @* <small class="text-muted">เว้นว่างไว้หากไม่ต้องการเปลี่ยน</small> *@
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="col-md-6">
+                                <label class="form-label">เบอร์โทร</label>
+                                <input type="tel" id="txtEditTelephone_@userEdit.Id" class="form-control" value="@userEdit.Telephone" maxlength="10" placeholder="089xxxxxxx">
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12">
+                                <label class="form-label">ที่อยู่</label>
+                                <textarea class="form-control" id="txtEditAddress_@userEdit.Id" rows="3" placeholder="ที่อยู่ผู้ใช้งาน">@userEdit.Address</textarea>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+                                <label class="form-label">สถานะ</label>
+                                <select class="form-select" id="selectEditStatus_@userEdit.Id">
+                                    <option value="@userEdit.Status">@(userEdit.Status == 1 ? "ใช้งาน" : "ปิดใช้งาน") </option>
+                                    @if(userEdit.Status == 1)
+                                    {
+                                        <option value="0">ปิดใช้งาน</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="1">ใช้งาน</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Role -->
+                            <div class="col-md-6">
+                                <label class="form-label">บทบาท</label>
+                                <select class="form-select" id="selectEditRole_@userEdit.Id">
+                                    <option value="@userEdit.Role">@(userEdit.Role == 0 ? "Admin" : userEdit.Role == 1 ? "Staff" : "Customer") </option>
+                                    @if (userEdit.Role == 0)
+                                    {
+                                        <option value="1">Staff</option>
+                                        <option value="2">Customer</option>
+                                    }
+                                    else if (userEdit.Role == 1)
+                                    {
+                                        <option value="0">Admin</option>
+                                        <option value="2">Customer</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="0">Admin</option>
+                                        <option value="1">Staff</option>
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button class="btn btn-flamingo" type="button" form="userForm" onclick="onClickUpdateUser(@userEdit.Id)">
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+                            
+<script>
+    var deletedImageUrl = '@Url.Action("DeleteImages", "Product")';
+    var addUserUrl = '@Url.Action("AddUser", "User")';
+    var updateUserUrl = '@Url.Action("UpdateUser", "User")';
+</script>
+
+<script src="~/js/user.js" asp-append-version="true"></script>
+
