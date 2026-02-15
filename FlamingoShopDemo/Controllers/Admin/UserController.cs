@@ -12,13 +12,14 @@ namespace FlamingoShopDemo.Controllers.Admin
     public class UserController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        private readonly IWebHostEnvironment _env;
-
-        public UserController(ApplicationDBContext db, IWebHostEnvironment env) : base(db)
-        {
-            _db = db;
-            _env = env;
-        }
+        public UserController(
+              ApplicationDBContext db,
+              IWebHostEnvironment env
+          ) : base(db, env)
+                {
+                    _db = db;
+                }
+      
 
         public IActionResult Index()
         {
@@ -215,5 +216,34 @@ namespace FlamingoShopDemo.Controllers.Admin
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost]
+        public IActionResult LockUser(int Id, int type)
+        {
+            try
+            {
+                var exists = _db.User
+                        .Where(x => x.Id == Id).FirstOrDefault();
+
+                if (exists != null)
+                {
+                    exists.Blacklist = type;
+                    
+                    _db.User.Update(exists);
+                    _db.SaveChanges();
+                }
+
+                return Json(new { result = "success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = "false" + ex.ToString() });
+            }
+
+        }
+
+
+
+
     }
 }

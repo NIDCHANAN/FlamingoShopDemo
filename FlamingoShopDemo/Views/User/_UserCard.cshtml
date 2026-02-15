@@ -1,0 +1,69 @@
+﻿@using FlamingoModel.Models
+@model UserCardDto
+
+@{
+    var user = Model.User;
+    var image = Model.Image;
+    var active = user.Blacklist == 1 ? "inactive" : "active";
+}
+
+<div class="col-xl-3 col-lg-4 col-md-6">
+    <div class="user-card-grid shadow-sm">
+
+        <div class="user-top text-center">
+            @if (image != null)
+            {
+                <img src="@image.Path" class="user-avatar-lg">
+            }
+            else
+            {
+                <img src="https://i.pravatar.cc/100?u=@user.Id" class="user-avatar-lg">
+            }
+            <span class="status-dot @active"></span>
+        </div>
+
+        <div class="user-body text-center">
+            <h6 class="fw-semibold">@user.Name</h6>
+            <small class="text-muted">@user.Email</small><br />
+
+            <small class="text-muted">
+                @(string.IsNullOrEmpty(user.Telephone) || user.Telephone.Length < 4
+                                ? user.Telephone
+                                : user.Telephone.Substring(0, 3) + "-" + user.Telephone.Substring(3))
+            </small>
+
+            <div class="role-badge mt-2 @(user.Role == 0 ? "admin" : "customer")">
+                @(user.Role == 0 ? "Admin" : "Customer")
+            </div>
+        </div>
+
+        <div class="user-actions">
+            <button class="icon-btn edit"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editUserModal_@user.Id">
+                <i class="bi bi-pencil"></i>
+            </button>
+
+            @if (user.Blacklist == 1)
+            {
+                <button class="icon-btn lock"
+                onclick="onClickUnBlackList(@user.Id)">
+                    <i class="bi bi-lock"></i>
+                </button>
+
+            }
+            else
+            {
+              <button class="icon-btn lock"
+                    onclick="onClickBlackList(@user.Id)">
+                    <i class="bi bi-unlock"></i>
+                </button>
+            }
+
+            <button class="icon-btn delete"
+                    onclick="onClickDeleteUser(@user.Id)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+</div>

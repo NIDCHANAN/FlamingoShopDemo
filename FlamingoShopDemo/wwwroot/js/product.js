@@ -340,7 +340,7 @@ function onClickSaveProduct() {
             });
             Toast.fire({
                 icon: "success",
-                title: "Add Group successfully"
+                title: "Add Product successfully"
             });
 
             setTimeout(() => {

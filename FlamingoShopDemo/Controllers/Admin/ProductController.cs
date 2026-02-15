@@ -12,12 +12,14 @@ namespace FlamingoShopDemo.Controllers.Admin
     public class ProductController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        private readonly IWebHostEnvironment _env;
-        public ProductController(ApplicationDBContext db, IWebHostEnvironment env) : base(db)
+        public ProductController(
+               ApplicationDBContext db,
+               IWebHostEnvironment env
+        ) : base(db, env)
         {
             _db = db;
-            _env = env;
         }
+    
         public IActionResult Index()
         {
             ViewBag.role = "admin";

@@ -264,3 +264,95 @@ function removeOldImage(imageId) {
 
 
 }
+
+function onClickBlackList(id) {
+    Swal.fire({
+        title: 'ยืนยันการปืดกั้นผู้ใช้งาน?',
+        text: 'ผู้ใช้งานจะไม่สามารถเข้าสู่ระบบได้',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: lockUserUrl,
+                type: 'POST',
+                data: { Id: id, type : 1 },
+                success: function () {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "Locked successfully"
+                    });
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                },
+                error: function () {
+                    Swal.fire('Error', 'Can not Delete', 'error');
+                }
+            });
+        }
+    });
+}
+
+
+
+function onClickUnBlackList(id) {
+    Swal.fire({
+        title: 'ยืนยันการปืดกั้นผู้ใช้งาน?',
+        text: 'ผู้ใช้งานจะไม่สามารถเข้าสู่ระบบได้',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: lockUserUrl,
+                type: 'POST',
+                data: { Id: id, type: 0 },
+                success: function () {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "Locked successfully"
+                    });
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                },
+                error: function () {
+                    Swal.fire('Error', 'Can not Delete', 'error');
+                }
+            });
+        }
+    });
+}

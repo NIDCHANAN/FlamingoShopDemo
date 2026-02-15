@@ -10,7 +10,7 @@ namespace FlamingoShopDemo.Controllers
     {
         private readonly ApplicationDBContext _db;
 
-        private readonly IWebHostEnvironment _env;
+        protected readonly IWebHostEnvironment _env;
 
         public BaseController(ApplicationDBContext db, IWebHostEnvironment env)
         {

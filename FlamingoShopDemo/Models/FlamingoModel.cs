@@ -176,5 +176,12 @@ namespace FlamingoModel.Models
         public string Wrap { get; set; } = "";
         public int Stems { get; set; }
     }
+
+    public class UserCardDto
+    {
+        public UserModel User { get; set; }
+        public ImageModel Image { get; set; }
+    }
+
 }
 

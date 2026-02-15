@@ -8,7 +8,10 @@ namespace FlamingoShopDemo.Controllers.Customer
     {
         private readonly ApplicationDBContext _db;
 
-        public CustomerController(ApplicationDBContext db) : base(db)
+        public CustomerController(
+            ApplicationDBContext db,
+            IWebHostEnvironment env
+        ) : base(db, env)
         {
             _db = db;
         }

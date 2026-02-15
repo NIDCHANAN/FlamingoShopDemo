@@ -7,8 +7,10 @@ namespace FlamingoShopDemo.Controllers.Admin
     public class DiscountController : BaseController
     {
         private readonly ApplicationDBContext _db;
-
-        public DiscountController(ApplicationDBContext db) : base(db)
+        public DiscountController(
+               ApplicationDBContext db,
+               IWebHostEnvironment env
+        ) : base(db, env)
         {
             _db = db;
         }

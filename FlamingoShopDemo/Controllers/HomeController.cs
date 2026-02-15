@@ -4,6 +4,7 @@ using FlamingoShopDemo.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -14,11 +15,17 @@ namespace FlamingoShopDemo.Controllers
         private readonly ApplicationDBContext _db;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDBContext db) : base(db)
+        public HomeController(
+             ILogger<HomeController> logger,
+             ApplicationDBContext db,
+             IWebHostEnvironment env
+         ) : base(db, env)
         {
-            _db = db;
-            _logger = logger;
+                _db = db;
+                _logger = logger;
+
         }
+       
 
         public IActionResult Index()
         {
