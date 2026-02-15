@@ -10,46 +10,6 @@ const statusMap = {
 };
 
 
-const toggleBtn = document.getElementById("menu-toggle");
-const sidebar = document.getElementById("sidebar");
-
-function isMobile() {
-    return window.innerWidth < 768;
-}
-
-toggleBtn.addEventListener("click", () => {
-    sidebar.hidden = !sidebar.hidden;
-});
-
-sidebar.addEventListener("mouseenter", () => {
-    if (!isMobile()) {
-        sidebar.classList.remove("collapsed");
-    }
-});
-
-sidebar.addEventListener("mouseleave", () => {
-    if (!isMobile()) {
-        sidebar.classList.add("collapsed");
-    }
-});
-
-window.addEventListener("resize", () => {
-    if (isMobile()) {
-        sidebar.hidden = true;
-        toggleBtn.style.display = "block";
-    } else {
-        sidebar.hidden = false;
-        toggleBtn.style.display = "none";
-    }
-});
-
-if (isMobile()) {
-    sidebar.hidden = true;
-    toggleBtn.style.display = "block";
-} else {
-    sidebar.hidden = false;
-    toggleBtn.style.display = "none";
-}
 
 document.querySelectorAll('.order-card').forEach(card => {
     const status = parseInt(card.dataset.status); // 1-4
@@ -82,51 +42,52 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
         detail.classList.toggle('d-none');
     });
 });
-function renderProgress(card, status) {
-    const steps = card.querySelectorAll('.progress-step');
-    const labels = card.querySelectorAll('.step-label');
-    const dropdownBtn = card.querySelector('.btn-status');
-    const dropdownItems = card.querySelectorAll('.dropdown-item');
+//function renderProgress(card, status) {
+//    if (!card) return;
+//    const steps = card.querySelectorAll('.progress-step');
+//    const labels = card.querySelectorAll('.step-label');
+//    const dropdownBtn = card.querySelector('.btn-status');
+//    const dropdownItems = card.querySelectorAll('.dropdown-item');
 
-    // progress
-    steps.forEach((step, index) => {
-        step.classList.remove('done', 'current');
-        step.innerHTML = '';
+//    // progress
+//    steps.forEach((step, index) => {
+//        step.classList.remove('done', 'current');
+//        step.innerHTML = '';
 
-        if (index + 1 < status) {
-            step.classList.add('done');
-            step.innerHTML = '<i class="bi bi-check"></i>';
-        } else if (index + 1 === status) {
-            step.classList.add('current');
-        }
-    });
+//        if (index + 1 < status) {
+//            step.classList.add('done');
+//            step.innerHTML = '<i class="bi bi-check"></i>';
+//        } else if (index + 1 === status) {
+//            step.classList.add('current');
+//        }
+//    });
 
-    // labels
-    labels.forEach((label, index) => {
-        label.classList.remove('done', 'current');
+//    // labels
+//    labels.forEach((label, index) => {
+//        label.classList.remove('done', 'current');
 
-        if (index + 1 < status) {
-            label.classList.add('done');
-        } else if (index + 1 === status) {
-            label.classList.add('current');
-        }
-    });
+//        if (index + 1 < status) {
+//            label.classList.add('done');
+//        } else if (index + 1 === status) {
+//            label.classList.add('current');
+//        }
+//    });
 
-    // dropdown button text
-    if (dropdownBtn) {
-        dropdownBtn.textContent = statusMap[status];
-    }
+//    // dropdown button text
+//    if (dropdownBtn) {
+//        dropdownBtn.textContent = statusMap[status];
+//    }
 
-    // dropdown active item
-    dropdownItems.forEach(item => {
-        item.classList.toggle(
-            'active',
-            parseInt(item.dataset.status) === status
-        );
-    });
+//    // dropdown active item
+//    dropdownItems.forEach(item => {
+//        item.classList.toggle(
+//            'active',
+//            parseInt(item.dataset.status) === status
+//        );
+//    });
 
-    card.dataset.status = status;
-}
+//    card.dataset.status = status;
+//}
 
 // initial
 document.querySelectorAll('.order-card').forEach(card => {

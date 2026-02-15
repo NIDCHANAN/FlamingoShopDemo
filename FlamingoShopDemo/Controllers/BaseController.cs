@@ -10,10 +10,12 @@ namespace FlamingoShopDemo.Controllers
     {
         private readonly ApplicationDBContext _db;
 
-        public BaseController(ApplicationDBContext db)
+        private readonly IWebHostEnvironment _env;
+
+        public BaseController(ApplicationDBContext db, IWebHostEnvironment env)
         {
             _db = db;
-
+            _env = env;
         }
 
         [HttpPost]
@@ -25,11 +27,7 @@ namespace FlamingoShopDemo.Controllers
 
                 foreach (var img in images)
                 {
-                    var fullPath = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        img.Path.TrimStart('/')
-                    );
+                    var fullPath = Path.Combine(_env.WebRootPath, "uploads");
 
                     if (System.IO.File.Exists(fullPath))
                         System.IO.File.Delete(fullPath);
@@ -44,6 +42,12 @@ namespace FlamingoShopDemo.Controllers
             {
                 return Json(new { result = "false" + ex.ToString() });
             }
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

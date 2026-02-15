@@ -476,7 +476,7 @@ function onClickUpdateProduct(id) {
             });
             Toast.fire({
                 icon: "success",
-                title: "Update Group successfully"
+                title: "Update Product successfully"
             });
 
             setTimeout(() => {

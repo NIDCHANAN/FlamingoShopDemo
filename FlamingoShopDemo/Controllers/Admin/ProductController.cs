@@ -12,10 +12,11 @@ namespace FlamingoShopDemo.Controllers.Admin
     public class ProductController : BaseController
     {
         private readonly ApplicationDBContext _db;
-
-        public ProductController(ApplicationDBContext db) : base(db)
+        private readonly IWebHostEnvironment _env;
+        public ProductController(ApplicationDBContext db, IWebHostEnvironment env) : base(db)
         {
             _db = db;
+            _env = env;
         }
         public IActionResult Index()
         {
@@ -133,11 +134,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (request.Images != null && addGroup.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);
@@ -323,11 +321,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (request.Images != null && exists.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);
@@ -506,11 +501,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (model.Images != null && addTemplate.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);
@@ -639,11 +631,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (request.Images != null && exists.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);

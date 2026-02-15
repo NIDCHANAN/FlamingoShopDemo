@@ -12,10 +12,12 @@ namespace FlamingoShopDemo.Controllers.Admin
     public class UserController : BaseController
     {
         private readonly ApplicationDBContext _db;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(ApplicationDBContext db) : base(db)
+        public UserController(ApplicationDBContext db, IWebHostEnvironment env) : base(db)
         {
             _db = db;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -64,11 +66,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (request.Images != null && addUser.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);
@@ -170,11 +169,8 @@ namespace FlamingoShopDemo.Controllers.Admin
 
                     if (request.Images != null && exists.Id != 0)
                     {
-                        var uploadPath = Path.Combine(
-                             Directory.GetCurrentDirectory(),
-                             "wwwroot",
-                             "uploads"
-                         );
+                        var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
 
                         if (!Directory.Exists(uploadPath))
                             Directory.CreateDirectory(uploadPath);

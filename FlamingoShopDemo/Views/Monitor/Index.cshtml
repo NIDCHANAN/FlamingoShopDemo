@@ -1,18 +1,26 @@
 ﻿<div class="container-fluid py-4">
 
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold text-pink"> 📋 รายการคำสั่งซื้อ</h4>
-        <div class="order-date-filter">
+   <div class="d-flex flex-column flex-md-row 
+                justify-content-between align-items-start align-items-md-center 
+                gap-3 mb-4">
+
+        <h4 class="fw-bold text-pink mb-0">
+            📋 รายการคำสั่งซื้อ
+        </h4>
+
+        <div class="order-date-filter d-flex align-items-center">
             <i class="bi bi-calendar-event me-2"></i>
-            <input type="date" id="orderDateFilter">
+            <input type="date" id="orderDateFilter" 
+                   class="form-control form-control-sm">
         </div>
+
     </div>
 
 <div class="row g-4">
     <!-- Card 1 -->
     <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
-        <div class="order-card" data-status="2" data-order-id="Y34XDHR">
+        <div class="order-card " data-status="2" data-order-id="Y34XDHR">
             <div class="order-header">
                 <div class="order-id">ORDER #Y34XDHR</div>
                 <small class="text-pink fw-bold">01/13/18</small>
@@ -60,11 +68,6 @@
             </div>
         </div>
     </div>
-
-    <!-- อีก 3 ใบ (copy ใช้ได้เลย) -->
-    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
-    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
-    <div class="col-xl-3 col-lg-4 col-md-6"><div class="order-card">...</div></div>
 
 </div>
 

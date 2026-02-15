@@ -44,6 +44,7 @@ body {
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f8f9fa;
+    overflow-x: hidden;
 }
 
 #wrapper {
@@ -867,3 +868,6 @@ body {
 .user-card-grid.inactive {
     opacity: .6;
 }
+
+
+
