@@ -1,81 +1,264 @@
-﻿
+﻿@using FlamingoModel.Models
+@model ProductViewDto;
+
+
+@{
+    var groups = Model.TempDetail
+        .Where(x => x.StatusUse == 1)
+        .GroupBy(x => new { x.CategoryGroupId, x.CategoryGroupName })
+        .ToList();
+}
+
+
 <div class="container my-5">
     <div class="app p-4 p-md-5">
 
         <div class="row g-5 align-items-start">
 
-            <!-- PREVIEW -->
+          <!-- PREVIEW -->
             <div class="col-lg-6">
                 <div class="sticky-top" style="top:90px">
-                    <h4 class="mb-1">ออกแบบช่อดอกไม้ในฝัน</h4>
-                    <small class="text-muted">เลือกดอกไม้ โทนสี และจำนวนตามใจคุณ</small>
 
-                    <div class="preview mt-4" id="wrapPreview">
-                        <img id="aiResult" />
-                        @* <img id="bouquetImg"> *@
+                    <h4 class="mb-1">ออกแบบช่อดอกไม้ในฝัน</h4>
+                    <small class="text-muted">
+                        เลือกดอกไม้ โทนสี และจำนวนตามใจคุณ
+                    </small>
+
+                    <!-- Main Preview -->
+                    <div class="preview mt-4 position-relative" id="wrapPreview">
+
+                        <img id="aiResult" class="main-preview-img" />
+
+                        <!-- Overlay Loading -->
+                        <div class="preview-loading d-none" id="previewLoading">
+                            กำลังสร้างภาพ...
+                        </div>
+
                     </div>
+
+                    <!-- TEMPLATE RESULT -->
+                <div id="templateResultBox" class="mb-4 d-none">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="fw-semibold text-success">
+                            แบบที่ตรงกับที่คุณเลือก
+                        </small>
+                    </div>
+
+
+                    <div class="template-scroll" id="templateScroll">
+                    </div>
+
+                 
+                </div>
+
+
+                    <!-- Reference Gallery -->
+                    <div class="reference-box mt-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="fw-semibold">Ref. ตัวอย่างช่อดอกไม้</small>
+                            <small class="text-muted">คลิกเพื่อเลือก</small>
+                        </div>
+                        <div class="ref-wrapper position-relative">
+
+                            <button type="button" class="ref-btn left" onclick="scrollRef(-1,'refScroll')">
+                                ‹
+                            </button>
+
+                            <div class="ref-scroll" id="refScroll">
+                              @foreach(var refer in Model.Images
+                                                .Where(x => x.TypeImage == 2)
+                                                .GroupBy(x => x.RelationId)
+                                                .Select(g => g.First()))
+                                {
+                                    var refId = Model.Template.Where(x => x.Id == refer.RelationId).FirstOrDefault();
+
+                                    if (refId != null)
+                                    {
+                                        <img src="@refer.Path" class="ref-item"
+                                             data-id="@refId.Id"
+                                             data-name="@refId.Name"
+                                             data-img="@refer.Path"
+                                             data-price="@refId.Price" />
+                                    }
+                                  
+                                }
+                            </div>
+
+                            <button type="button" class="ref-btn right" onclick="scrollRef(1,'refScroll')">
+                                ›
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
                 </div>
             </div>
+
 
             <!-- OPTIONS -->
             <div class="col-lg-6">
 
+                @{
+                    var flowerGroup = Model.Groups.FirstOrDefault(x => x.NameCategory == "ดอกไม้");
+                }
+
                 <div class="card-ui">
-                    <div class="d-flex gap-2 mb-2">
-                        <span class="badge rounded-pill text-bg-light">STEP 1</span>
-                        <small>เลือกดอกไม้</small>
+                     <div class="d-flex gap-2 mb-2">
+                         <span class="badge rounded-pill text-bg-light">STEP 1</span>
+                         <small>เลือกดอกไม้</small>
+                     </div>
+
+                    
+
+                    <div class="builder-grid d-flex justify-content-around" >
+                        @foreach (var p in Model.Products
+                                    .Where(x => x.CategoryGroupId == flowerGroup.Id))
+                        {
+                             var img = Model.Images
+                                        .FirstOrDefault(x => x.RelationId == p.Id);
+                             var price = Model.ProductPrice.FirstOrDefault(x => x.CategoryDetailId == p.Id);
+
+                            <div class="paper-item"
+                                 data-id="@p.Id"
+                                 data-price="@(price?.Price ?? 0)">
+
+                                <img src="@(img?.Path ?? "/Image/noimage.png")" />
+
+                                <div class="paper-name">
+                                    @p.NameCategory
+                                </div>
+
+                            </div>
+                        }
+
                     </div>
 
-                    <div class="d-flex gap-2 mt-3">
-                        <div class="flower-option active" data-type="rose">
-                            <i class="bi bi-flower1 fs-3"></i>
-                            <div>กุหลาบ</div>
+
+                </div>
+
+                  <div class="card-ui">
+                     <div class="d-flex justify-content-between align-items-center mb-3">
+                         <div>
+                             <span class="badge rounded-pill text-bg-light">STEP 2</span>
+                             <small>จำนวนดอก</small>
+                         </div>
+
+                         <div class="input-group input-group-sm" style="width:130px">
+                             <input type="number"
+                                     class="form-control text-center"
+                                     id="stemInput"
+                                     min="1"
+                                     max="99"
+                                     value="12">
+                         </div>
+                     </div>
+
+                     <input type="range"
+                             min="1"
+                             max="99"
+                             step="1"
+                             value="12"
+                             class="form-range"
+                             id="stemRange">
+                 </div>
+
+                @{
+                    var paperGroup = Model.Groups
+                        .FirstOrDefault(x => x.NameCategory == "กระดาษ");
+
+                }
+
+                <div class="card-ui">
+                    <div class="d-flex gap-2 mb-2">
+                         <span class="badge rounded-pill text-bg-light">STEP 3</span>
+                         <small>เลือกกระดาษ</small>
+                     </div>
+                 
+                        <div class="builder-grid d-flex justify-content-around" >
+
+                            @foreach (var p in Model.Products
+                                                        .Where(x => x.CategoryGroupId == paperGroup.Id))
+                            {
+                                var img = Model.Images
+                                .FirstOrDefault(x => x.RelationId == p.Id);
+                                var pricePaper = Model.ProductPrice.FirstOrDefault(x => x.CategoryDetailId == p.Id);
+
+                                <div class="paper-item"
+                                     data-id="@p.Id"
+                                     data-price="@(pricePaper?.Price ?? 0)">
+
+
+                                    <img src="@(img?.Path ?? "/Image/noimage.png")" />
+
+                                    <div class="paper-name">
+                                        @p.NameCategory
+                                    </div>
+
+                                </div>
+                            }
                         </div>
-                        <div class="flower-option" data-type="lily">
-                            <i class="bi bi-flower2 fs-3"></i>
-                            <div>ลิลลี่</div>
+                 </div>
+
+
+                @{
+                    var otherGroup = Model.Groups.Where( x => x.NameCategory != "ดอกไม้" && x.NameCategory != "กระดาษ" )
+                        .ToList();
+                    // int options = 2;
+                }
+
+                @foreach(var other in otherGroup)
+                {
+                    var countPro = Model.Products
+                                 .Where(x => x.CategoryGroupId == other.Id).Count();
+
+                    if (countPro >= 1)
+                    {
+                        @* options++; *@
+
+                        <div class="card-ui">
+                                <div class="d-flex gap-2 mb-2">
+                                     <span class="badge rounded-pill text-bg-light">STEP 3</span>
+                                     <small>เลือก @other.NameCategory</small>
+                                 </div>
+                                @* @{
+                                    var id = "options" + options;
+                                } *@
+
+                               
+                                <div class="builder-grid d-flex justify-content-around" >
+
+                                        @foreach (var p in Model.Products
+                                                    .Where(x => x.CategoryGroupId == other.Id))
+                                        {
+                                             var img = Model.Images
+                                                        .FirstOrDefault(x => x.RelationId == p.Id);
+                                             var pprice = Model.ProductPrice.FirstOrDefault(x => x.CategoryDetailId == p.Id);
+
+                                            <div class="paper-item"
+                                                 data-id="@p.Id"
+                                                data-price="@(pprice?.Price ?? 0)">
+
+
+                                                <img src="@(img?.Path ?? "/Image/noimage.png")" />
+
+                                                <div class="paper-name">
+                                                    @p.NameCategory
+                                                </div>
+
+                                            </div>
+                                        }
+                                    </div>
+
+                                
                         </div>
-                        <div class="flower-option" data-type="mix">
-                            <i class="bi bi-stars fs-3"></i>
-                            <div>ผสม</div>
-                        </div>
-                    </div>
-                </div>
+                    }
 
-                <div class="card-ui">
-                    <div class="d-flex gap-2 mb-2">
-                        <span class="badge rounded-pill text-bg-light">STEP 2</span>
-                        <small>จำนวนดอก: <span id="stemCount">12</span> ดอก</small>
-                    </div>
-                    <input type="range" min="6" max="30" step="2" value="12" class="form-range" id="stemRange">
-                </div>
-
-                <div class="card-ui">
-                    <div class="d-flex gap-2 mb-2">
-                        <span class="badge rounded-pill text-bg-light">STEP 3</span>
-                        <small>เลือกกระดาษห่อ</small>
-                    </div>
-                    <div class="d-flex gap-2 mt-2">
-                        <div class="color-dot active" style="background:#f2c1cc"></div>
-                        <div class="color-dot" style="background:#e6e6e6"></div>
-                        <div class="color-dot" style="background:#c9b6a2"></div>
-                    </div>
-                </div>
-
-                <div class="card-ui">
-                    <div class="d-flex gap-2 mb-2">
-                        <span class="badge rounded-pill text-bg-light">OPTIONAL</span>
-                        <small>เพิ่มพิเศษ</small>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input extra" data-price="99" type="checkbox"> การ์ดอวยพร
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input extra" data-price="199" type="checkbox"> ของขวัญ
-                    </div>
-                </div>
-
-
+                }
+              
             </div>
         </div>
         <!-- SUMMARY CARD -->
@@ -88,7 +271,7 @@
                 <i class="bi bi-receipt fs-2 text-muted"></i>
             </div>
 
-            <button class="btn btn-soft w-100 py-2 mt-2" onclick="addToCart()">
+            <button class="btn btn-soft w-100 py-2 mt-2" onclick="addToCartCustom()">
                 <i class="bi bi-bag-plus me-1"></i> เพิ่มลงตะกร้า
             </button>
 
@@ -101,33 +284,33 @@
 </div>
 
 <!-- RECOMMEND -->
-<div class="container my-5">
+@* <div class="container my-5">
     <h5 class="brand mb-1">ช่อดอกไม้แนะนำ</h5>
     <small class="text-muted mb-3 d-block">เลือกเป็นแบบเริ่มต้นแล้วปรับแต่งต่อได้</small>
+ 
 
     <div class="d-flex gap-3 overflow-auto pb-2">
-        <div class="card-ui recommend" data-flower="rose" data-stems="12">
-            <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9">
-            <div class="mt-2 fw-semibold">Classic Rose</div>
-            <small class="text-muted">12 ดอก</small>
-            <div class="text-danger fw-semibold">1,599 บาท</div>
-        </div>
+        @foreach (var product in Model.Template)
+        {
+            var img = Model.Images.Where(x => x.RelationId == product.Id).FirstOrDefault();
+            var TempDetail = Model.TempDetail.Where(x => x.TemplateFlowerId == product.Id).ToList();
 
-        <div class="card-ui recommend" data-flower="lily" data-stems="18">
-            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93">
-            <div class="mt-2 fw-semibold">Pure Lily</div>
-            <small class="text-muted">18 ดอก</small>
-            <div class="text-danger fw-semibold">1,999 บาท</div>
-        </div>
-
-        <div class="card-ui recommend" data-flower="mix" data-stems="24">
-            <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6">
-            <div class="mt-2 fw-semibold">Pastel Mix</div>
-            <small class="text-muted">24 ดอก</small>
-            <div class="text-danger fw-semibold">2,599 บาท</div>
-        </div>
+            <div class="card-ui recommend" data-flower="rose" data-stems="12">
+                <img src="@img?.Path">
+                <div class="mt-2 fw-semibold">@product.Name</div>
+                @foreach (var detail in TempDetail)
+                {
+                    <small class="text-muted">@detail.NameCategory - @detail.Qty.ToString("N0") </small> <br />
+                }
+                <div class="text-danger fw-semibold">@product.Price บาท</div>
+            </div>
+        }
     </div>
-</div>
+</div> *@
 
 
+<script>
+    var checkTemplateUrl = '@Url.Action("checkTemplate", "Customer")';
+    
+</script>
 <script src="~/js/customFlower.js" asp-append-version="true"></script>

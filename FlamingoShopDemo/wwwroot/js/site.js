@@ -15,115 +15,213 @@ scrollTopBtn.addEventListener("click", function () {
 
 
 
-document.querySelectorAll(".add-cart-btn").forEach(btn => {
-    btn.addEventListener("click", function () {
-        addToCart(
-            this.dataset.name,
-            this.dataset.price,
-            this.dataset.id,
-            this.dataset.img
-        );
-    });
+//document.querySelectorAll(".add-cart-btn").forEach(btn => {
+//    btn.addEventListener("click", function () {
+//        addToCart(
+//            this.dataset.name,
+//            this.dataset.price,
+//            this.dataset.id,
+//            this.dataset.img
+//        );
+//    });
+//});
+
+
+document.addEventListener("click", function (e) {
+
+    const btn = e.target.closest(".add-cart-btn");
+    if (!btn) return;
+
+
+    const name = btn.dataset.name;
+    const img = btn.dataset.img;
+    const price = parseFloat(btn.dataset.price);
+    const id = btn.dataset.id;
+
+    addToCart(name, price, id, img);
+
+    // เอฟเฟกต์เล็กๆ เวลากด
+    btn.innerText = "✓ เพิ่มแล้ว";
+    btn.classList.add("btn-success");
+
+    setTimeout(() => {
+        btn.innerText = "เพิ่มลงตะกร้า";
+        btn.classList.remove("btn-success");
+    }, 1000);
+
 });
 
+// ============================
+// CART CORE
+// ============================
+
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
 
 function addToCart(name, price, id, img) {
-    cart.push({
-        id: id,
-        img: img,
-        name: name,
-        price: price,
-        qty: 1
-    });
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartCount = document.getElementById("cartCount");
-
-    if (cart.length > 0) {
-        cartCount.innerText = cart.length;
-        cartCount.style.display = "inline-block";
-    } else {
-        cartCount.style.display = "none";
-    }
-    renderCart();
-}
-
-function renderCart() {
-    const box = document.getElementById("cartItems");
-    const totalEl = document.getElementById("cartTotal");
-
-    if (!box) return;
-
-    box.innerHTML = "";
-    let total = 0;
-
-    if (!cart || cart.length === 0) {
-        box.innerHTML = "<p class='text-muted'>ยังไม่มีสินค้า</p>";
-        totalEl.innerText = "0 บาท";
+    if (!id) {
+        console.error("Product id is undefined");
         return;
     }
 
-    const groupedCart = {};
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    cart.forEach(item => {
-        if (groupedCart[item.id]) {
-            groupedCart[item.id].qty += item.qty || 1;
+    const existing = cart.find(item => String(item.id) === String(id));
+
+    
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({
+            id: id,
+            name: name,
+            price: price,
+            img: img || "/images/no-image.png",
+            qty: 1
+        });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartUI();
+}
+
+
+
+// ============================
+// UPDATE COUNT + RENDER
+// ============================
+
+function updateCartUI() {
+
+    const cart = getCart();
+    const totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+
+    // UPDATE COUNT (รองรับหลายจุด)
+    document.querySelectorAll(".cartCount").forEach(el => {
+        if (totalQty > 0) {
+            el.innerText = totalQty;
+            el.style.display = "flex";
         } else {
-            groupedCart[item.id] = {
-                ...item,
-                qty: item.qty || 1
-            };
+            el.style.display = "none";
         }
     });
 
-    Object.values(groupedCart).forEach(c => {
-        total += c.price * c.qty;
+    renderCart();
+}
 
-        box.insertAdjacentHTML("beforeend", `
-            <div class="d-flex gap-3 mb-3 align-items-center">
-                <img src="${c.img}" width="60" class="rounded">
 
-                <div class="flex-grow-1">
-                    <p class="mb-1 fw-medium">${c.name}</p>
-                    <small class="text-muted">
-                        ${c.qty} × ฿${c.price}
-                    </small>
-                </div>
+// ============================
+// RENDER CART
+// ============================
 
-                <i class="bi bi-x text-danger"
-                   role="button"
-                   onclick="removeFromCart(${c.id})"></i>
-            </div>
-        `);
+function renderCart() {
+
+    const cart = getCart();
+    const containers = document.querySelectorAll(".cartItems");
+    const totalEls = document.querySelectorAll(".cartTotal");
+
+    const containersCheckout = document.querySelectorAll(".orderList");
+    const totalCheckout = document.querySelectorAll(".paymentAmount");
+
+
+    if (containers.length === 0 ) return;
+    let total = 0;
+
+    if (cart.length === 0) {
+        containers.forEach(box => {
+            box.innerHTML = "<p class='text-muted'>ยังไม่มีสินค้า</p>";
+        });
+
+        containersCheckout.forEach(box => {
+            box.innerHTML = "<p class='text-muted'>ยังไม่มีสินค้า</p>";
+        });
+
+
+        totalEls.forEach(el => el.innerText = "฿0");
+        return;
+    }
+
+    containers.forEach(box => box.innerHTML = "");
+    containersCheckout.forEach(box => box.innerHTML = "");
+
+    cart.forEach(c => {
+
+        total += c.price * (c.qty || 1);
+
+        const itemHTML = `
+                            <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
+
+                                <img src="${c.img}" width="60" height="60"
+                                     class="rounded flex-shrink-0 object-fit-cover">
+
+                                <div class="flex-grow-1 min-w-0">
+                                    <p class="mb-1 fw-medium text-truncate">${c.name}</p>
+                                    <small class="text-muted d-block text-truncate">
+                                        ${c.qty} × ฿${c.price}
+                                    </small>
+                                </div>
+
+                                <button class="btn btn-sm btn-light text-danger border-0 flex-shrink-0"
+                                        onclick="removeFromCart('${c.id}')">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+
+                            </div>
+                        `;
+
+
+        containers.forEach(box => {
+            box.insertAdjacentHTML("beforeend", itemHTML);
+        });
+
+        containersCheckout.forEach(box => {
+            box.insertAdjacentHTML("beforeend", itemHTML);
+        });
     });
 
-    totalEl.innerText = formatTHB ( total);
+    totalEls.forEach(el => {
+        el.innerText = formatTHB(total).toLocaleString();
+    });
+
+
+    totalCheckout.forEach(el => {
+        el.innerText = formatTHB(total).toLocaleString();
+        localStorage.setItem("subTotal", total);
+
+    });
 }
+
+
+// ============================
+// REMOVE
+// ============================
 
 function removeFromCart(id) {
-    cart = cart.filter(item => item.id.toString() !== id.toString());
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    //renderCart();
-    updateCartCount();
+
+    let cart = getCart();
+
+    cart = cart.filter(item => item.id !== id);
+
+    saveCart(cart);
+    updateCartUI();
 }
 
 
+// ============================
+// INIT
+// ============================
+
 document.addEventListener("DOMContentLoaded", function () {
-    updateCartCount();
-
-
-    const cartCanvas = document.getElementById("cartCanvas");
-    cartCanvas.addEventListener("shown.bs.offcanvas", function () {
-        updateCartCount();
-    });
+    updateCartUI();
 });
+
 
 
 function formatTHB(amount) {

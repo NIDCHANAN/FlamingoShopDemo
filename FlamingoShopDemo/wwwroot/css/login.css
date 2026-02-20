@@ -145,6 +145,10 @@ input {
         cursor: pointer;
     }
 
+.login-line:hover {
+    background: #ebf5ef;
+    color: white;
+}
 /* ===== responsive ===== */
 @media(max-width:768px) {
     .login-wrapper {

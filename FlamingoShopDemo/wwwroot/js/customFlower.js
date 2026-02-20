@@ -4,33 +4,163 @@
     mix: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
 };
 
-function save() { localStorage.setItem("bouquet", JSON.stringify(state)); }
-
-
+// ================= STATE =================
 let state = JSON.parse(localStorage.getItem("bouquet")) || {
-    flower: "rose", stems: 12, wrap: "#f2c1cc", extras: [], cart: []
+    flowerId: null,
+    flowerPrice: 0,
+    paperId: null,
+    paperPrice: 0,
+    stems: 12,
+    cart: []
 };
-function updatePreview() {
-    bouquetImg[state.flower] && (bouquetImg[state.flower]);
-    document.getElementById("aiResult").src = bouquetImg[state.flower];
-    document.getElementById("wrapPreview").style.background = state.wrap;
-    document.getElementById("stemCount").innerText = state.stems;
 
-    generateImage();
+
+
+function save() {
+    localStorage.setItem("bouquet", JSON.stringify(state));
+}
+
+// ================= INIT =================
+document.addEventListener("DOMContentLoaded", function () {
+
+    const stemInput = document.getElementById("stemInput");
+    const stemRange = document.getElementById("stemRange");
+
+    // ---------- เลือกสินค้า (ดอก / กระดาษ / อื่น ๆ) ----------
+    document.querySelectorAll(".paper-item").forEach(item => {
+
+        item.addEventListener("click", function () {
+
+            // ลบ active ใน card เดียวกัน
+            this.closest(".card-ui")
+                .querySelectorAll(".paper-item")
+                .forEach(x => x.classList.remove("active"));
+
+            this.classList.add("active");
+
+            const price = parseFloat(this.dataset.price || 0);
+            const id = this.dataset.id;
+
+            // แยกว่าอยู่ STEP ไหน
+            const stepText = this.closest(".card-ui")
+                .querySelector("small").innerText;
+
+            if (stepText.includes("ดอกไม้")) {
+                state.flowerId = id;
+                state.flowerPrice = price;
+            }
+            else if (stepText.includes("กระดาษ")) {
+                state.paperId = id;
+                state.paperPrice = price;
+            }
+
+            document.getElementById("aiResult").src = "";
+            state.cart = [];
+            save();
+
+
+            checkTemplate();
+            calcTotal();
+        });
+    });
+
+    // ---------- จำนวนดอก ----------
+    function updateStem(value) {
+
+        value = parseInt(value);
+
+        if (isNaN(value) || value < 1) value = 1;
+        if (value > 99) value = 99;
+
+        state.stems = value;
+
+        stemInput.value = value;
+        stemRange.value = value;
+
+        calcTotal();
+    }
+
+    stemInput.addEventListener("input", function () {
+        updateStem(this.value);
+    });
+
+    stemRange.addEventListener("input", function () {
+        updateStem(this.value);
+    });
 
     calcTotal();
+});
+
+
+// ================= คำนวณราคา =================
+function calcTotal() {
+
+    let total = 0;
+
+    // ราคาดอกไม้
+    if (state.flowerPrice) {
+        total += state.flowerPrice;
+
+        // เพิ่มราคาตามจำนวนดอก
+        total += (state.stems - 1) * 40;
+    }
+
+    // ราคากระดาษ
+    if (state.paperPrice) {
+        total += state.paperPrice;
+    }
+
+    const totalEl = document.getElementById("totalPrice");
+    if (totalEl) {
+        totalEl.innerText = total.toLocaleString() + " บาท";
+    }
+
+    save();
 }
 
-function generatePrompt() {
-   return   `A realistic flower bouquet photo.
-            Flower type: ${state.flower}
-            Number of stems: ${state.stems}
-            Wrapping paper color: ${state.wrap}
-            Studio lighting, product photography, white background
-            `;
-}
+
+// เลือก Reference Image
+document.querySelectorAll(".ref-item").forEach(img => {
+
+    img.addEventListener("click", function () {
+
+        document.querySelectorAll(".ref-item")
+            .forEach(x => x.classList.remove("active"));
+
+        this.classList.add("active");
+
+        // เปลี่ยน preview
+        document.getElementById("aiResult").src = this.src;
+
+        const id = this.dataset.id;
+        const name = this.dataset.name;
+        const price = parseFloat(this.dataset.price);
+        const image = this.dataset.img;
+
+        state.cart = state.cart.filter(item => item.type !== "template");
+
+        state.cart.push({
+            type: "template",   
+            id: id,
+            name: name,
+            price: price,
+            image: image,
+            qty: 1
+        });
+
+
+        $('#totalPrice').text(price + " บาท" );
+        save();
+    });
+
+});
+
 
 async function generateImage() {
+
+    document.getElementById("previewLoading")
+        .classList.remove("d-none");
+
     fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,79 +168,189 @@ async function generateImage() {
     })
         .then(res => res.blob())
         .then(blob => {
+
             document.getElementById("aiResult").src =
                 URL.createObjectURL(blob);
+
+            document.getElementById("previewLoading")
+                .classList.add("d-none");
         });
 }
 
+function scrollRef(direction, id) {
 
-function calcTotal() {
-    let base = { rose: 1599, lily: 1699, mix: 1899 }[state.flower];
-    let total = base + (state.stems - 12) * 40;
-    state.extras.forEach(e => total += e);
-    document.getElementById("totalPrice").innerText = total.toLocaleString() + " บาท";
-    save();
-}
+    const container = document.getElementById(id);
 
-document.querySelectorAll(".flower-option").forEach(f => {
-    f.onclick = () => {
-        document.querySelectorAll(".flower-option").forEach(x => x.classList.remove("active"));
-        f.classList.add("active");
-        state.flower = f.dataset.type;
-        updatePreview();
-    };
-});
+    if (!container) return;   
 
-stemRange.oninput = e => {
-    state.stems = e.target.value;
-    updatePreview();
-};
+    const scrollAmount = 250;
 
-document.querySelectorAll(".color-dot").forEach(c => {
-    c.onclick = () => {
-        document.querySelectorAll(".color-dot").forEach(x => x.classList.remove("active"));
-        c.classList.add("active");
-        state.wrap = c.style.background;
-        updatePreview();
-    };
-});
-
-document.querySelectorAll(".extra").forEach(e => {
-    e.onchange = () => {
-        state.extras = [...document.querySelectorAll(".extra:checked")].map(x => +x.dataset.price);
-        calcTotal();
-    };
-});
-
-function addToCart() {
-    state.cart.push({ ...state });
-    save();
-    renderCart();
-}
-
-function renderCart() {
-    cartItems.innerHTML = "";
-    state.cart.forEach(c => {
-        cartItems.innerHTML += `
-    <div class="mb-3">
-      <img src="${bouquetImg[c.flower]}" class="w-100 rounded mb-1">
-      <small>${c.stems} ดอก</small>
-    </div>`;
+    container.scrollBy({
+        left: direction * scrollAmount,
+        behavior: "smooth"
     });
 }
 
-document.querySelectorAll(".recommend").forEach(card => {
-    card.onclick = () => {
-        state.flower = card.dataset.flower;
-        state.stems = +card.dataset.stems;
-        stemRange.value = state.stems;
-        document.querySelectorAll(".flower-option").forEach(f => {
-            f.classList.toggle("active", f.dataset.type === state.flower);
-        });
-        updatePreview();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    let stemCount = 12;
+
+    const stemInput = document.getElementById("stemInput");
+    const stemRange = document.getElementById("stemRange");
+
+    function updateStem(value) {
+
+        if (isNaN(value) || value < 1) value = 1;
+        if (value > 999) value = 999;
+
+        stemCount = value;
+
+        stemInput.value = stemCount;
+        stemRange.value = stemCount;
+    }
+
+    stemInput.addEventListener("input", function () {
+        updateStem(parseInt(this.value));
+    });
+
+    stemRange.addEventListener("input", function () {
+        updateStem(parseInt(this.value));
+    });
+
 });
 
-updatePreview();
-renderCart();
+function checkTemplate() {
+    var customBouquet = new FormData();
+    customBouquet.append("flower", state.flowerId);
+    customBouquet.append("qty", state.stems);
+    customBouquet.append("paper", state.paperId);
+
+    $.ajax({
+        url: checkTemplateUrl,
+        type: 'POST',
+        data: customBouquet,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+            console.log(res);
+            if (!res.found) {
+                document.getElementById("templateResultBox")
+                    .classList.add("d-none");
+                return;
+            }
+
+            const box = document.getElementById("templateResultBox");
+            const container = document.getElementById("templateScroll");
+
+            box.classList.remove("d-none");
+            container.innerHTML = "";
+
+            //res.data.forEach(item => {
+
+            //    container.innerHTML += `
+            //         <img src="${item.imagePath}"
+            //         class="template-item ref-item"
+            //         data-id="${item.tempFlowerId}">
+            //     `;
+            //});
+
+            res.data.forEach(item => {
+                container.innerHTML += `
+                                    <img src="${item.imagePath}"
+                                         class="template-item ref-item"
+                                         data-id="${item.tempFlowerId}"
+                                         data-name="${item.name}"
+                                         data-img="${item.imagePath}"
+                                         data-price="${item.price}">
+                                `;
+            });
+
+
+
+          
+           
+        },
+        error: function () {
+            Swal.fire('Error', 'Can not Delete', 'error');
+        }
+    });
+}
+
+
+document.getElementById("templateScroll")
+    .addEventListener("click", function (e) {
+
+        if (!e.target.classList.contains("template-item"))
+            return;
+
+        const el = e.target;
+
+        // active class
+        document.querySelectorAll(".template-item")
+            .forEach(x => x.classList.remove("active"));
+
+        el.classList.add("active");
+
+        // preview
+        document.getElementById("aiResult").src = el.src;
+
+        const id = el.dataset.id;
+        const name = el.dataset.name;
+        const price = parseFloat(el.dataset.price);
+        const image = el.dataset.img;
+
+        // ลบ template เก่า
+        state.cart = state.cart.filter(item => item.type !== "template");
+
+        // เพิ่มใหม่
+        state.cart.push({
+            type: "template",
+            id: id,
+            name: name,
+            price: price,
+            image: image,
+            qty: 1
+        });
+
+        $('#totalPrice').text(price + " บาท");
+
+        save();
+
+        console.log("Updated cart:", state.cart);
+    });
+
+function addToCartCustom()
+{
+    if (state.cart && state.cart.length > 0) {
+
+        const item = state.cart[0];
+
+        addToCart(
+            item.name,
+            item.price,
+            item.id,
+            item.image
+        );
+    }
+    else
+    {
+        let priceText = $('#totalPrice').text().trim();
+        let firstWord = priceText.split(' ')[0];
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.push({
+            id: null,
+            name: "Customization",
+            price: firstWord,
+            img: "/images/no-image.png",
+            qty: 1
+        });
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartUI();
+
+    }
+
+
+}

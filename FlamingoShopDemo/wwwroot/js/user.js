@@ -267,7 +267,7 @@ function removeOldImage(imageId) {
 
 function onClickBlackList(id) {
     Swal.fire({
-        title: 'ยืนยันการปืดกั้นผู้ใช้งาน?',
+        title: 'ยืนยันการปิดกั้นผู้ใช้งาน?',
         text: 'ผู้ใช้งานจะไม่สามารถเข้าสู่ระบบได้',
         icon: 'warning',
         showCancelButton: true,
@@ -314,8 +314,8 @@ function onClickBlackList(id) {
 
 function onClickUnBlackList(id) {
     Swal.fire({
-        title: 'ยืนยันการปืดกั้นผู้ใช้งาน?',
-        text: 'ผู้ใช้งานจะไม่สามารถเข้าสู่ระบบได้',
+        title: 'ยืนยันการเปิดระบบผู้ใช้งาน?',
+        text: 'ผู้ใช้งานจะสามารถเข้าสู่ระบบได้',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -342,7 +342,7 @@ function onClickUnBlackList(id) {
                     });
                     Toast.fire({
                         icon: "success",
-                        title: "Locked successfully"
+                        title: "Un-dLocked successfully"
                     });
 
                     setTimeout(() => {

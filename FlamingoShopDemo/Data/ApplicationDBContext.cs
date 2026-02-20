@@ -21,5 +21,6 @@ namespace FlamingoShopDemo.Data
         public DbSet<DetailTemplateFlowerModel> DetailTemplateFlower { get; set; }
         public DbSet<PromotionModel> Promotion { get; set; }
         public DbSet<UserModel> User { get; set; }
+        public DbSet<MasterOrderModel> MasterOrder { get; set; }
     }
 }

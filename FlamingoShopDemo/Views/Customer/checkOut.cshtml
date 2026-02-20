@@ -1,0 +1,120 @@
+﻿
+<div class="container-app">
+    <div class="row g-4">
+
+        <!-- LEFT -->
+        <div class="col-lg-7">
+            <div class="card-ui mb-4">
+                <div class="section-title">Checkout Order</div>
+                <div class="sub">Pick your message and delivery</div>
+
+                <hr>
+                 <div class="mb-3">
+                    <label class="small mb-1">Telephone (Recriver) <span class="text-danger">*</span></label>
+                    <input class="form-control" id="telInput">
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="small mb-1">Full Name (Recriver) <span class="text-danger">*</span></label>
+                    <input class="form-control" id="nameInput">
+                </div>
+
+                <div class="mb-3">
+                    <label class="small mb-1">Address (Recriver) <span class="text-danger">*</span></label>
+                    <input id="addressInput"
+                           class="form-control"
+                           placeholder="Search location...">
+                </div>
+
+                <div class="mb-3">
+                    <div id="map"
+                    style="height: 350px; border-radius: 15px;"></div>
+                </div>
+
+                <input type="hidden" id="lat">
+                <input type="hidden" id="lng">
+
+
+                <div class="mb-3">
+                    <label class="small mb-1">Delivery Date & Time  <span class="text-danger">*</span></label>
+                    <input type="datetime-local"
+                           id="deliveryDateTime"
+                           class="form-control" >
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check-label small">Note to recriver</label>
+                    <input class="form-control ">
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-lg-5">
+
+            <!-- ORDER SUMMARY -->
+            <div class="card-ui mb-4">
+                @* <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9" class="order-img mb-3"> *@
+                <div class="orderList"></div>
+
+
+                <div class="fw-semibold mb-2">Your Dream Bouquet</div>
+
+                <div class="summary-row d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <span class="paymentAmount"></span>
+                </div>
+                <div class="summary-row d-flex justify-content-between">
+                    <span>Shipping</span>
+                    <span>฿100</span>
+                </div>
+                <hr>
+                <div class="summary-row d-flex justify-content-between">
+                    <span>Total</span>
+                    <span id="totalPayment"></span>
+                </div>
+            </div>
+
+            <!-- PAYMENT -->
+            <div class="card-ui">
+                <div class="fw-semibold mb-2">Payment Methods</div>
+
+                @* <div class="payment-card active">
+                    <i class="bi bi-credit-card me-2"></i> Credit Card
+                </div> *@
+
+                <div class="payment-card">
+                    <i class="bi bi-wallet2 me-2"></i> PromptPay
+                </div>
+
+                @if (Context.Session.GetString("UserName") != null)
+                {
+                    <button class="pay-btn mt-3" onclick="onClickConfirm()">
+                        Confirm & Pay
+                    </button>
+                }
+                else
+                {
+                    <a class="pay-btn mt-3 btn"
+                       asp-action="Index"
+                       asp-controller="Home">
+                        Please Login for payment
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+    var addOrderMaster = '@Url.Action("orderMaster", "Customer")';
+    
+</script>
+
+<script src="~/js/checkOurOrder.js" asp-append-version="true"></script>

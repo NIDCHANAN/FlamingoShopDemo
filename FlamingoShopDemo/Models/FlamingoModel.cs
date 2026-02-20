@@ -36,8 +36,8 @@ namespace FlamingoModel.Models
         [Key]
         public int Id { get; set; }
         public int CategoryDetailId { get; set; }
-        public int Qty { get; set; }
-        public int Price { get; set; }
+        public decimal Qty { get; set; }
+        public decimal Price { get; set; }
         public DateTime Cdt { get; set; }
         public DateTime Udt { get; set; }
     }
@@ -111,6 +111,27 @@ namespace FlamingoModel.Models
 
     }
 
+    public class MasterOrderModel
+    {
+        [Key]
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public DateTime OrderDate { get; set; }
+        public string AddressDelivary { get; set; }
+        public decimal TotalPrice { get; set; }
+        public decimal Discount { get; set; }
+        public int PaymentType { get; set; }
+        public int MasterDelivaryId { get; set; }
+        public string DelivaryNo { get; set; }
+        public int Status { get; set; }
+        public DateTime Cdt { get; set; }
+        public DateTime Udt { get; set; }
+        public string? TelephoneOrder { get; set; }
+        public string? fullNameRecrive { get; set; }
+        public string? UserIdLine { get; set; }
+        public string? OrderNo { get; set; }
+
+    }
 
 
     public class ProductViewDto
@@ -120,6 +141,7 @@ namespace FlamingoModel.Models
         public List<ImageModel> Images { get; set; }
         public List<TemplateFlowerModel> Template { get; set; }
         public List<TemeplateCategoryDto> TempDetail { get; set; }
+        public List<LogAddCategoryDetailModel> ProductPrice { get; set; }
     }
 
     public class AddProductDto : CategoryDetailModel
@@ -177,11 +199,27 @@ namespace FlamingoModel.Models
         public int Stems { get; set; }
     }
 
+
+    public class CustomBouquetDto
+    {
+        public int flower { get; set; } = 0;
+        public int qty { get; set; } = 0;
+        public int paper { get; set; } = 0;
+        public int other { get; set; } = 0;
+
+    }
+
     public class UserCardDto
     {
         public UserModel User { get; set; }
         public ImageModel Image { get; set; }
     }
 
+
+    public class MonitorViewDto
+    {
+        public List<MasterOrderModel> masterOrder { get; set; }
+        public List<UserModel> user { get; set; }
+    }
 }
 
