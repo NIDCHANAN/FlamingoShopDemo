@@ -24,9 +24,38 @@
                         เลือกดอกไม้ โทนสี และจำนวนตามใจคุณ
                     </small>
 
+                    
+                    <!-- Customer Upload Reference -->
+                    <div class="upload-ref-box mt-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="fw-semibold">แนบรูป Ref ของคุณ</small>
+                            <small class="text-muted">อัปโหลดได้ 1 รูป</small>
+                        </div>
+
+                        <div class="upload-area text-center p-3" onclick="document.getElementById('customerRefInput').click()">
+
+                            <input type="file"
+                                    id="customerRefInput"
+                                    accept="image/*"
+                                    class="d-none"
+                                    onchange="previewCustomerRef(event)" />
+
+                            <div id="uploadPlaceholder">
+                                <i class="bi bi-image fs-3"></i>
+                                <p class="mb-0 small text-muted">คลิกเพื่อเลือกรูป</p>
+                            </div>
+
+                            <img id="customerRefPreview"
+                                    class="img-fluid rounded d-none mt-2"
+                                    style="max-height:150px;" />
+
+                        </div>
+
+                    </div>
+
                     <!-- Main Preview -->
                     <div class="preview mt-4 position-relative" id="wrapPreview">
-
                         <img id="aiResult" class="main-preview-img" />
 
                         <!-- Overlay Loading -->
@@ -55,6 +84,7 @@
 
                     <!-- Reference Gallery -->
                     <div class="reference-box mt-4">
+                  
 
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <small class="fw-semibold">Ref. ตัวอย่างช่อดอกไม้</small>

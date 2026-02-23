@@ -203,11 +203,9 @@ function renderCart() {
 // ============================
 
 function removeFromCart(id) {
-
-
     let cart = getCart();
 
-    cart = cart.filter(item => item.id !== id);
+    cart = cart.filter(item => String(item.id) !== String(id));
 
     saveCart(cart);
     updateCartUI();

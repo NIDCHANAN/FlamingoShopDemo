@@ -8,6 +8,7 @@ function init() {
     var shipping = 100;
     var total = formatTHB(subtotal + shipping);
     $('#totalPayment').text(total);
+    $('#paymentAmountModal').text(total);
 
     initMap();
 
@@ -105,7 +106,6 @@ function onClickConfirm() {
     let tel = $('#telInput').val().trim();
     let name = $('#nameInput').val().trim();
     let date = $('#deliveryDateTime').val().trim();
-
     if (!address || !tel || !name || !date) {
 
         Swal.fire({
@@ -117,17 +117,32 @@ function onClickConfirm() {
 
         return; 
     }
-
     orderDraft.append("AddressDelivary", address);
     orderDraft.append("TelephoneOrder", tel);
     orderDraft.append("fullNameRecrive", name);
     orderDraft.append("OrderDate", date);
-
-
     var subtotal = parseInt(localStorage.getItem("subTotal")) || 0;
     var shipping = 100;
     orderDraft.append("TotalPrice", (subtotal + shipping));
-    console.log(orderDraft);
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.forEach((item, index) => {
+        orderDraft.append(`OrderSubDraft[${index}].TemplateId`, Number(item.id));
+        orderDraft.append(`OrderSubDraft[${index}].Price`, item.price);
+        orderDraft.append(`OrderSubDraft[${index}].Qty`, item.qty);
+    });
+
+    let customBouquets = JSON.parse(localStorage.getItem("customBouquets")) || [];
+    customBouquets.forEach((item, index) => {
+        orderDraft.append(`OrderDetailDraft[${index}].CustomId`, item.customId);
+        orderDraft.append(`OrderDetailDraft[${index}].FlowerId`, item.flowerId);
+        orderDraft.append(`OrderDetailDraft[${index}].FlowerPrice`, item.flowerPrice);
+        orderDraft.append(`OrderDetailDraft[${index}].PaperId`, item.paperId);
+        orderDraft.append(`OrderDetailDraft[${index}].PaperPrice`, item.paperPrice);
+        orderDraft.append(`OrderDetailDraft[${index}].Stems`, item.stems);
+        orderDraft.append(`OrderDetailDraft[${index}].TotalPrice`, item.totalPrice);
+    });
+
 
     $.ajax({
         url: addOrderMaster,
@@ -136,43 +151,77 @@ function onClickConfirm() {
         contentType: false,
         processData: false,
         success: function (res) {
-            if (res.result === "success") {
-                //const modalItems = document.getElementById('userModal');
-                //const Items = bootstrap.Modal.getInstance(modalItems);
-                //Items.hide();
+            var cart = [];
 
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer;
-                        toast.onmouseleave = Swal.resumeTimer;
-                    }
-                });
-                Toast.fire({
-                    icon: "success",
-                    title: "Conofirm Order successfully"
-                });
+            saveCart(cart);
+            updateCartUI();
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            }
+            const paymentModal = new bootstrap.Modal(
+                document.getElementById('paymentModal')
+            );
+
+            paymentModal.show();
         }
 
     });
-    //let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    //cart.forEach((card, index) => {
-    //    if (card.Id == null) {
 
-    //    }
-    //});
+}
+
+function confirmPayment() {
+
+    const fileInput = document.getElementById("slipImage");
+
+    if (fileInput.files.length === 0) {
+        Swal.fire({
+            icon: "warning",
+            title: "กรุณาแนบสลิปก่อน",
+            confirmButtonColor: "#c79a8b"
+        });
+        return;
+    }
+
+    let paymentForm = new FormData();
+    paymentForm.append("OrderId", window.currentOrderId); // เก็บจากตอน save order
+    paymentForm.append("SlipImage", fileInput.files[0]);
+
+    $.ajax({
+        url: UploadSlip,
+        type: "POST",
+        data: paymentForm,
+        contentType: false,
+        processData: false,
+        success: function (res) {
+
+            if (res.success) {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "ส่งสลิปเรียบร้อย",
+                    text: "กำลังตรวจสอบการชำระเงิน"
+                }).then(() => {
+
+                    localStorage.removeItem("cart");
+                    localStorage.removeItem("customBouquets");
+
+                    window.location.href = "/Customer/OrderSuccess";
+                });
+            }
+        }
+    });
+}
+
+function previewSlip(event) {
+    const reader = new FileReader();
+    reader.onload = function () {
+        $('#slipPreview')
+            .attr('src', reader.result)
+            .removeClass('d-none');
+    };
+    reader.readAsDataURL(event.target.files[0]);
 }
 
 setMinDateTime();
 setInterval(setMinDateTime, 60000);
-init();
-
+$(document).ready(function () {
+    init();
+});

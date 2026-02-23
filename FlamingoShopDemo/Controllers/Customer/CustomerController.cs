@@ -1,7 +1,11 @@
-﻿using FlamingoModel.Models;
+﻿using Azure.Core;
+using FlamingoModel.Models;
 using FlamingoShopDemo.Data;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace FlamingoShopDemo.Controllers.Customer
 {
@@ -128,16 +132,16 @@ namespace FlamingoShopDemo.Controllers.Customer
         }
 
         [HttpPost]
-        public IActionResult orderMaster(MasterOrderModel request)
+        public IActionResult orderMaster(OrdertDetailDto request)
         {
             var orderNo = DateTime.Now.ToString("yyMMddHHmmssfff");
 
-            if (orderNo != null)
+            if (orderNo != null && request.OrderSubDraft.Count > 0)
             {
                 var addOrder = new MasterOrderModel
                 {
-            
-                    UserId  = HttpContext.Session.GetInt32("UserId").Value,
+
+                    UserId = HttpContext.Session.GetInt32("UserId").Value,
                     UserIdLine = HttpContext.Session.GetString("UserName"),
                     OrderDate = request.OrderDate,
                     AddressDelivary = request.AddressDelivary,
@@ -157,28 +161,195 @@ namespace FlamingoShopDemo.Controllers.Customer
                 _db.MasterOrder.Add(addOrder);
                 _db.SaveChanges();
 
+                if (addOrder.Id != null && request.OrderSubDraft.Count > 0)
+                {
+                    foreach (var sub in request.OrderSubDraft)
+                    {
+                        var addSub = new SubMasterOrderModel
+                        {
+                            MasterOrderId = addOrder.Id ?? 0,
+                            TemplateId = sub.TemplateId.ToString().Length == 13 ? 0 : (int)sub.TemplateId,
+                            GroupCustomerId = sub.TemplateId.ToString().Length == 13 ? sub.TemplateId : 0,
+                            Price = sub.Price,
+                            Qty = sub.Qty,
+                            Discount = 0,
+                            Cdt = DateTime.Now,
+                            Udt = DateTime.Now
+                        };
+                        _db.SubMasterOrder.Add(addSub);
+                        _db.SaveChanges();
+
+                        if (sub.TemplateId.ToString().Length >= 13)
+                        {
+                            var temp = request.OrderDetailDraft
+                                .Where(x => x.CustomId == sub.TemplateId)
+                                .ToList();
+
+                            foreach (var detail in temp)
+                            {
+                                _db.DetailOrder.Add(new DetailOrderModel
+                                {
+                                    SubMasterOrderId = addSub.Id,
+                                    GroupCustomerId = sub.TemplateId,
+                                    CategoryDetailId = detail.FlowerId,
+                                    Price = detail.FlowerPrice,
+                                    Qty = detail.Stems,
+                                    Discount = 0,
+                                    Cdt = DateTime.Now,
+                                    Udt = DateTime.Now
+                                });
+
+                                _db.DetailOrder.Add(new DetailOrderModel
+                                {
+                                    SubMasterOrderId = addSub.Id,
+                                    GroupCustomerId = sub.TemplateId,
+                                    CategoryDetailId = detail.PaperId,
+                                    Price = detail.PaperPrice,
+                                    Qty = 1,
+                                    Discount = 0,
+                                    Cdt = DateTime.Now,
+                                    Udt = DateTime.Now
+                                });
+                            }
+                        }
+                        _db.SaveChanges();
+
+                    }
+
+                }
+
+
                 return Ok(new
                 {
                     success = true,
-                    orderId = addOrder.Id
+                    price = request.TotalPrice
                 });
 
             }
 
+         
             return Ok(new
             {
                 success = false,
-                orderId = 0
+                price = request.TotalPrice
+
             });
 
         }
 
+
+        public async Task SendLineMessage(string userId, string message)
+        {
+            var accessToken = "Q/I+hy8i3TUQAVXgRLvOftE8RZL3q34Tcs1Jc6QePDpeWzC5CFRNGB1ZUkSrnzY3rWjoOt567ztZWCZpwKyQhKadYNqZayxw8MymND08wwSfAVTDhXXV2y5RuWI4DpM997EUome00mJEFuWC1O4urAdB04t89/1O/w1cDnyilFU=";
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", accessToken);
+
+                var payload = new
+                {
+                    to = userId,
+                    messages = new[]
+                    {
+                new
+                {
+                    type = "text",
+                    text = message
+                }
+            }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await client.PostAsync(
+                    "https://api.line.me/v2/bot/message/push",
+                    content);
+
+                var result = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine(result);
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UploadSlip(int OrderId, IFormFile SlipImage)
+        {
+            if (SlipImage == null || SlipImage.Length == 0)
+                return Json(new { success = false });
+
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            var ext = Path.GetExtension(SlipImage.FileName);
+            var newFileName = $"Slip_{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(uploadPath, newFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                SlipImage.CopyTo(stream);
+            }
+
+            var dbPath = "/uploads/" + newFileName;
+
+            var addImages = new ImageModel
+            {
+                RelationId = OrderId,  
+                Path = dbPath,
+                TypeImage = 5,    
+                StatusUse = 1,
+                Cdt = DateTime.Now,
+                Udt = DateTime.Now
+            };
+
+            _db.Image.Add(addImages);
+            _db.SaveChanges();
+
+            var order = _db.MasterOrder.FirstOrDefault(x => x.Id == OrderId);
+            if (order != null)
+            {
+                order.Status = 1;
+                _db.SaveChanges();
+            }
+
+
+
+            var message = $@"🔔 แจ้งเตือนคำสั่งซื้อใหม่
+🧾 เลขที่คำสั่งซื้อ: {order.OrderNo}
+💰 ยอดรวม: {order.TotalPrice} บาท 
+📅 วันที่สั่งซื้อ: {order.OrderDate:dd/MM/yyyy HH:mm}
+
+ กรุณาตรวจสอบรายละเอียด:
+http://157.85.97.187/Monitor/index
+                                            ";
+
+            SendLineMessage(HttpContext.Session.GetString("userIdLine"), message);
+
+
+            return Json(new { success = true });
+        }
 
         public IActionResult History()
         {
             ViewBag.role = "customer";
 
            
+
+            return View();
+        }
+
+
+        public IActionResult Question()
+        {
+            ViewBag.role = "customer";
+
+
 
             return View();
         }

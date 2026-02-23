@@ -110,10 +110,63 @@
     </div>
 </div>
 
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow">
 
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">ชำระเงิน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <p class="text-muted mb-3">
+                    กรุณาสแกน QR Code และแนบสลิปเพื่อยืนยันการชำระเงิน
+                </p>
+
+                <!-- QR -->
+                <img src="/images/qr-payment.png"
+                     class="img-fluid rounded-3 shadow-sm mb-3"
+                     style="max-width:220px;">
+
+                <h4 class="fw-bold text-success mb-3">
+                    <span id="paymentAmountModal"></span>
+                </h4>
+
+                <!-- Upload Slip -->
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-semibold">แนบสลิปการโอน</label>
+                    <input type="file"
+                           id="slipImage"
+                           class="form-control"
+                           accept="image/*"
+                           onchange="previewSlip(event)">
+                </div>
+
+                <!-- Preview -->
+                <div class="mb-3">
+                    <img id="slipPreview"
+                         class="img-fluid rounded-3 shadow-sm d-none"
+                         style="max-height:250px;">
+                </div>
+
+                <button class="btn btn-success w-100 rounded-3"
+                        onclick="confirmPayment()">
+                    ยืนยันการชำระเงิน
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <script>
     var addOrderMaster = '@Url.Action("orderMaster", "Customer")';
+    var addOrderSubMaster = '@Url.Action("orderSubMaster", "Customer")';
+    var UploadSlip =  '@Url.Action("UploadSlip", "Customer")';
     
 </script>
 

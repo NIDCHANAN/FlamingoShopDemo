@@ -131,6 +131,8 @@ namespace FlamingoShopDemo.Controllers
             HttpContext.Session.SetInt32("UserId", 0);
             HttpContext.Session.SetString("UserEmail", "");
             HttpContext.Session.SetString("UserAddress", "");
+            HttpContext.Session.SetString("userIdLine", userId);
+            HttpContext.Session.SetString("UserImg", ProfileImg);
 
             return RedirectToAction("Index", "Customer");
 

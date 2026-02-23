@@ -15,6 +15,11 @@ let state = JSON.parse(localStorage.getItem("bouquet")) || {
 };
 
 
+let uploadedRefFile = null;
+let uploadedRefUrl = "";
+
+
+let customBouquets = JSON.parse(localStorage.getItem("customBouquets")) || [];
 
 function save() {
     localStorage.setItem("bouquet", JSON.stringify(state));
@@ -243,6 +248,8 @@ function checkTemplate() {
             const box = document.getElementById("templateResultBox");
             const container = document.getElementById("templateScroll");
 
+
+
             box.classList.remove("d-none");
             container.innerHTML = "";
 
@@ -280,6 +287,7 @@ function checkTemplate() {
 
 document.getElementById("templateScroll")
     .addEventListener("click", function (e) {
+        document.getElementById("wrapPreview").classList.remove("d-none");
 
         if (!e.target.classList.contains("template-item"))
             return;
@@ -320,8 +328,9 @@ document.getElementById("templateScroll")
         console.log("Updated cart:", state.cart);
     });
 
-function addToCartCustom()
+async  function addToCartCustom()
 {
+
     if (state.cart && state.cart.length > 0) {
 
         const item = state.cart[0];
@@ -335,22 +344,73 @@ function addToCartCustom()
     }
     else
     {
+        let customId = Date.now();
+        let imageUrl = "";
+
+        if (uploadedRefFile) {
+
+            const formData = new FormData();
+            formData.append("Image", uploadedRefFile);
+            formData.append("type", 2);
+            formData.append("id", customId); 
+
+            const response = await fetch("@Url.Action('SaveImages','Base')'", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+            imageUrl = result.imageUrl; 
+        }
+
         let priceText = $('#totalPrice').text().trim();
         let firstWord = priceText.split(' ')[0];
 
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
         cart.push({
-            id: null,
+            id: customId,          
             name: "Customization",
             price: firstWord,
-            img: "/images/no-image.png",
+            img: imageUrl,         
             qty: 1
         });
 
         localStorage.setItem("cart", JSON.stringify(cart));
+
+        let customItem = {
+            customId: Date.now(),
+            flowerId: state.flowerId,
+            flowerPrice: state.flowerPrice,
+            paperId: state.paperId,
+            paperPrice: state.paperPrice,
+            stems: state.stems,
+            totalPrice: (state.flowerPrice * state.stems) + state.paperPrice
+        };
+
+        let customBouquets = JSON.parse(localStorage.getItem("customBouquets")) || [];
+        customBouquets.push(customItem);
+        localStorage.setItem("customBouquets", JSON.stringify(customBouquets));
+
         updateCartUI();
 
     }
 
 
+}
+
+function previewCustomerRef(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploadedRefFile = file; 
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        document.getElementById("customerRefPreview").src = e.target.result;
+        document.getElementById("customerRefPreview").classList.remove("d-none");
+        document.getElementById("uploadPlaceholder").classList.add("d-none");
+        document.getElementById("wrapPreview").classList.add("d-none");
+    };
+
+    reader.readAsDataURL(file);
 }

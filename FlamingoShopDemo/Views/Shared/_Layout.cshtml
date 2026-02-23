@@ -301,13 +301,14 @@
                 <!-- USER -->
                 @if (Context.Session.GetString("UserName") != null)
                 {
-                    <div class="dropdown">
-                        <div class="d-flex align-items-center  gap-3 dropdown-toggle"
-                             role="button"
-                             data-bs-toggle="dropdown"
-                             style="cursor:pointer;">
+                            <div class="dropdown">
+                                <div class="d-flex align-items-center  gap-3 dropdown-toggle"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                style="cursor:pointer;">
 
-                            <img src="@Context.Session.GetString("UserImg")"
+                           
+                         <img src="@Context.Session.GetString("UserImg")"
                                  class="rounded-circle border"
                                  width="40"
                                  height="40"
@@ -375,18 +376,21 @@
         <footer class="footer-luxury pt-5 mt-5">
             <div class="container">
 
-            <div class="row gy-4 align-items-start">
+                <div class="row gy-4 align-items-start">
 
-                <!-- BRAND -->
-                <div class="col-12 col-md-4">
-                <h5 class="brand mb-3">Flamingo shop</h5>
-                <p class="text-muted small mb-3">
-                    ร้านดอกไม้พรีเมียมที่คัดสรรความงดงาม<br>
-                    เพื่อทุกช่วงเวลาที่มีความหมายของคุณ
-                </p>
+                    <!-- BRAND -->
+                    <div class="col-12 col-md-4">
+                        <h5 class="brand mb-3">Flamingo shop</h5>
+                        <p class="text-muted small mb-3">
+                            ร้านดอกไม้พรีเมียมที่คัดสรรความงดงาม<br>
+                            เพื่อทุกช่วงเวลาที่มีความหมายของคุณ
+                        </p>
 
+                        @{
+                            var tiktok = "https://www.tiktok.com/@flamingoflowerballoon?_r=1&_t=ZS-945DTHv9A04";
+                        }
                 <div class="d-flex gap-3">
-                    <a href="#" class="social-icon">
+                    <a href="@tiktok" class="social-icon">
                     <i class="bi bi-tiktok"></i>
                     </a>
                     <a href="https://web.facebook.com/FlamingFlowerBalloonShop?locale=th_TH" class="social-icon">
@@ -403,8 +407,8 @@
                 <h6 class="mb-3">บริการลูกค้า</h6>
                 <ul class="list-unstyled footer-links">
                     <li><a href="https://lin.ee/en2DKTa">ติดต่อเรา</a></li>
-                    <li><a href="#">การจัดส่งสินค้า</a></li>
-                    <li><a href="#">คำถามที่พบบ่อย</a></li>
+                    @* <li><a href="#">การจัดส่งสินค้า</a></li> *@
+                    <li><a asp-action="Question" asp-controller="Customer">คำถามที่พบบ่อย</a></li>
                 </ul>
                 </div>
 
