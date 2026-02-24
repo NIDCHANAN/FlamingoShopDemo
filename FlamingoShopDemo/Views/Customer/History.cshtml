@@ -1,114 +1,220 @@
-﻿<div class="container-fluid py-4">
+﻿@using FlamingoModel.Models
+@model OrderViewDto;
 
 
-    <div class="d-flex flex-column flex-md-row
-                justify-content-between align-items-start align-items-md-center
-                gap-3 mb-4">
+<div class="container py-5">
 
-        <h4 class="fw-bold text-pink mb-0">
-            📋 รายการคำสั่งซื้อ
-        </h4>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="fw-bold mb-0">
+            <i class="bi bi-clock-history me-2"></i>ประวัติคำสั่งซื้อ
+        </h3>
+
+        @* <select class="form-select w-auto">
+            <option>ทั้งหมด</option>
+            <option>รอชำระเงิน</option>
+            <option>กำลังเตรียมสินค้า</option>
+            <option>กำลังจัดส่ง</option>
+            <option>จัดส่งสำเร็จ</option>
+        </select> *@
     </div>
 
-    <div class="row g-4">
-        <!-- Card 1 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
-            <div class="order-card " data-status="2" data-order-id="Y34XDHR">
-                <div class="order-header">
-                    <div class="order-id">ORDER #Y34XDHR</div>
-                    <small class="text-pink fw-bold">01/13/18</small>
+    <!-- ORDER CARD -->
+    @foreach (var order in Model.MasterOrder)
+    {
+        <div class="order-history-card mb-4" data-order="@order.OrderNo">
+
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+
+                <!-- Top Section -->
+                <div class="d-flex justify-content-between flex-wrap gap-3">
+
+                    <div>
+                        <div class="fw-bold fs-5">ORDER #@order.OrderNo</div>
+                        <small class="text-muted">@order.OrderDate.ToString("dd-MMMM-yyyy")</small>
+                    </div>
+
+                    @{
+                        var colorbadge = order.Status == 0 ? "bg-danger"
+                        : order.Status == 1 ? "bg-primary"
+                        : order.Status == 2 || order.Status == 3 ? "bg-secondary"
+                        : "bg-success";
+
+                        var textbadge = order.Status == 0 ? "รอชำระเงิน"
+                        : order.Status == 1 ? "ยืนยันการชำระเงิน"
+                        : order.Status == 2 ? "เตรียมสินค้า"
+                        : order.Status == 3 ? "กำลังจัดส่ง"
+                        : "สำเร็จ";
+
+                        var progress = order.Status == 0 ? 25
+                        : order.Status == 1 ? 50
+                        : order.Status == 2 ? 75
+                        : order.Status == 3 ? 90
+                        : 100;
+                    }
+
+                    <div class="text-end">
+                        <span class="badge @colorbadge text-white px-3 py-2 rounded-pill">
+                            @textbadge
+                        </span>
+                        <div class="fw-semibold text-pink mt-2">฿ @(order.TotalPrice?.ToString("N2") ?? "0.00")</div>
+                    </div>
+
+                    @if (order.Status == 0)
+                    {
+                        <button class="btn btn-danger btn-sm mt-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#paymentModal"
+                                onclick="setPaymentData('@order.Id','@(order.TotalPrice?.ToString("N2") ?? "0.00")')">
+                            ชำระเงิน
+                        </button>
+                    }
                 </div>
 
-                <div class="tracking">
-                    ลูกค้า : <strong>ทดสอบ ระบบ</strong>
+                <!-- Progress -->
+                <div class="progress mt-4" style="height:8px;">
+                    <div class="progress-bar bg-pink" style="width:@progress%"></div>
                 </div>
 
-                <div class="progress-wrapper">
-                    <div class="progress-step"><i class="bi bi-check fs-2"></i></div>
-                    <div class="progress-step"><i class="bi bi-check"></i></div>
-                    <div class="progress-step"><i class="bi bi-check"></i></div>
-                    <div class="progress-step"><i class="bi bi-check"></i></div>
+                <div class="d-flex justify-content-between small mt-2 text-muted">
+                    <span>รอการชำระ</span>
+                    <span>ชำระเงิน</span>
+                    <span>เตรียมสินค้า</span>
+                    <span>จัดส่ง</span>
+                    <span>สำเร็จ</span>
                 </div>
 
-                <div class="step-labels  mb-3">
-                    <div class="step-label"><i class="bi bi-card-checklist"></i><br>Pending Payment</div>
-                    <div class="step-label"><i class="bi bi-box"></i><br>Prepare Order</div>
-                    <div class="step-label"><i class="bi bi-truck"></i><br>Delivery</div>
-                    <div class="step-label"><i class="bi bi-shop"></i><br>Arrived</div>
-                </div>
-
-                <div class="d-flex gap-2">
-
-                    <!-- Detail Button -->
-                    <button class="btn btn-sm btn-detail w-100">
-                        <i class="bi bi-eye me-1"></i> ดูรายละเอียด
+                <!-- Footer -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button class="btn btn-outline-pink btn-sm toggle-detail">
+                        <i class="bi bi-eye me-1"></i>ดูรายละเอียด
                     </button>
                 </div>
-            </div>
-        </div>
 
-    </div>
-
-</div>
-
-<!-- Detail Card (อยู่นอก col แต่ใน row เดียวกัน) -->
-<div class="col-12 d-none order-detail" id="detail-Y34XDHR">
-    <div class="order-card mt-3 order-detail-card">
-
-        <!-- Header -->
-        <div class="d-flex align-items-center mb-4">
-            <div class="detail-icon me-2">
-                <i class="bi bi-receipt"></i>
-            </div>
-            <h6 class="mb-0 fw-semibold">รายละเอียดคำสั่งซื้อ</h6>
-        </div>
-
-        <div class="row g-4">
-
-            <!-- Product List -->
-            <div class="col-md-6">
-                <div class="detail-section">
-                    <div class="section-title">
-                        <i class="bi bi-box-seam me-2"></i>รายการสินค้า
-                    </div>
-
-                    <ul class="product-list">
-                        <li>
-                            <span>ช่อที่ 1</span>
-                            <span class="qty">x1</span>
-                        </li>
-                        <li>
-                            <span>ช่อที่ 2</span>
-                            <span class="qty">x2</span>
-                        </li>
-                        <li>
-                            <span>ช่อที่ 3</span>
-                            <span class="qty">x5</span>
-                        </li>
-                    </ul>
-                </div>
             </div>
 
-            <!-- Address -->
-            <div class="col-md-6">
-                <div class="detail-section">
-                    <div class="section-title">
-                        <i class="bi bi-geo-alt me-2"></i>ที่อยู่จัดส่ง
-                    </div>
+            <!-- DETAIL SECTION -->
+            @{
+                var subOrder = Model.SubMasterOrder.Where(x => x.MasterOrderId == order.Id).ToList();
+            }
+            <div class="order-detail mt-3 d-none">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
 
-                    <div class="address-box">
-                        <div class="fw-semibold">คุณสมหญิง ใจดี</div>
-                        <div>99/9 ถนนสุขุมวิท</div>
-                        <div>แขวงคลองตัน เขตวัฒนา</div>
-                        <div>กรุงเทพฯ 10110</div>
-                        <div class="phone">
-                            <i class="bi bi-telephone me-1"></i>089-999-9999
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold mb-3">
+                                <i class="bi bi-box-seam me-2"></i>รายการสินค้า
+                            </h6>
+
+                            @foreach (var sub in subOrder)
+                            {
+                                var Name = Model.TemplateFlower.Where(x => x.Id == sub.TemplateId).FirstOrDefault();
+                                var NameTemp = Name?.Name;
+                                if (Name == null)
+                                {
+                                    NameTemp = "Customization";
+
+                                }
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>@NameTemp</span>
+                                    <span>x @sub.Qty</span>
+                                </div>
+                            }
+                            
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between fw-semibold">
+                                <span>รวมทั้งหมด</span>
+                                <span>฿ @(order.TotalPrice?.ToString("N2") ?? "0.00")</span>
+                            </div>
                         </div>
+
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold mb-3">
+                                <i class="bi bi-geo-alt me-2"></i>ที่อยู่จัดส่ง
+                            </h6>
+
+                            <div class="bg-light rounded-3 p-3">
+                                <div class="fw-semibold">@order.fullNameRecrive</div>
+                                <div style="white-space: pre-line;">
+                                    @order.AddressDelivary
+                                </div>
+                                <div class="mt-2">
+                                    <i class="bi bi-telephone me-1"></i>@order.TelephoneOrder
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
+            </div>
+
+        </div>
+    
+    }
+    
+</div>
+
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">ชำระเงิน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <p class="text-muted mb-3">
+                    กรุณาสแกน QR Code และแนบสลิปเพื่อยืนยันการชำระเงิน
+                </p>
+
+                <!-- QR -->
+                <img src="~/Image/qr-payment.jpg"
+                     class="img-fluid rounded-3 shadow-sm mb-3"
+                     style="max-width:220px;">
+
+                <h4 class="fw-bold text-success mb-3">
+                    <span id="paymentAmountModal"></span>
+                </h4>
+
+                <!-- Upload Slip -->
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-semibold">แนบสลิปการโอน</label>
+                    <input type="file"
+                           id="slipImage"
+                           class="form-control"
+                           accept="image/*"
+                           onchange="previewSlip(event)">
+                </div>
+
+                <!-- Preview -->
+                <div class="mb-3">
+                    <img id="slipPreview"
+                         class="img-fluid rounded-3 shadow-sm d-none"
+                         style="max-height:250px;">
+                </div>
+
+                <button class="btn btn-success w-100 rounded-3"
+                        onclick="confirmPayment()">
+                    ยืนยันการชำระเงิน
+                </button>
+
             </div>
 
         </div>
     </div>
 </div>
-<script src="~/js/order.js" asp-append-version="true"></script>
+
+
+<script>
+    var UploadSlip =  '@Url.Action("UploadSlip", "Customer")';
+</script>
+<script src="~/js/history.js" asp-append-version="true"></script>

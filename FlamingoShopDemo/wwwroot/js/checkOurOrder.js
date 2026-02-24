@@ -3,6 +3,7 @@ let marker;
 const input = document.getElementById("deliveryDateTime");
 
 
+
 function init() {
     var subtotal = parseInt(localStorage.getItem("subTotal")) || 0;
     var shipping = 100;
@@ -151,6 +152,8 @@ function onClickConfirm() {
         contentType: false,
         processData: false,
         success: function (res) {
+            localStorage.setItem("orderId", res.id);
+
             var cart = [];
 
             saveCart(cart);
@@ -181,8 +184,10 @@ function confirmPayment() {
     }
 
     let paymentForm = new FormData();
-    paymentForm.append("OrderId", window.currentOrderId); // เก็บจากตอน save order
+    paymentForm.append("OrderId",localStorage.getItem("orderId")); 
     paymentForm.append("SlipImage", fileInput.files[0]);
+    console.log(localStorage.getItem("orderId"));
+
 
     $.ajax({
         url: UploadSlip,
@@ -203,7 +208,7 @@ function confirmPayment() {
                     localStorage.removeItem("cart");
                     localStorage.removeItem("customBouquets");
 
-                    window.location.href = "/Customer/OrderSuccess";
+                    window.location.href = "/Customer/History";
                 });
             }
         }

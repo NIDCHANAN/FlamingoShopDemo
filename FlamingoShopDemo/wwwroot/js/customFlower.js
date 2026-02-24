@@ -354,7 +354,7 @@ async  function addToCartCustom()
             formData.append("type", 2);
             formData.append("id", customId); 
 
-            const response = await fetch("@Url.Action('SaveImages','Base')'", {
+            const response = await fetch(saveImageUrl,  {
                 method: "POST",
                 body: formData
             });

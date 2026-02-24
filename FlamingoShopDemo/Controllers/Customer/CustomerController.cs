@@ -222,7 +222,7 @@ namespace FlamingoShopDemo.Controllers.Customer
                 return Ok(new
                 {
                     success = true,
-                    price = request.TotalPrice
+                    id = addOrder.Id,
                 });
 
             }
@@ -231,8 +231,7 @@ namespace FlamingoShopDemo.Controllers.Customer
             return Ok(new
             {
                 success = false,
-                price = request.TotalPrice
-
+                id = request.Id,
             });
 
         }
@@ -339,9 +338,62 @@ http://157.85.97.187/Monitor/index
         {
             ViewBag.role = "customer";
 
-           
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            var sessionUserIdLine = HttpContext.Session.GetString("userIdLine");
 
-            return View();
+            List<MasterOrderModel> orders;
+            List<SubMasterOrderModel> suborders;
+            List<DetailOrderModel> detailorders;
+            List<TemplateFlowerModel> templateflowers;
+
+            if (sessionUserId.HasValue && sessionUserId.Value > 0)
+            {
+                orders = _db.MasterOrder
+                    .Where(x => x.UserId == sessionUserId.Value)
+                    .ToList();
+
+
+            }
+            else if (!string.IsNullOrEmpty(sessionUserIdLine))
+            {
+                orders = _db.MasterOrder
+                    .Where(x => x.UserIdLine == sessionUserIdLine)
+                    .ToList();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            var orderIds = orders.Select(o => o.Id).ToList();
+
+            suborders = _db.SubMasterOrder
+                .Where(x => orderIds.Contains(x.MasterOrderId))
+                .ToList();
+
+            var suborderIds = suborders.Select(o => o.Id).ToList();
+
+            detailorders = _db.DetailOrder
+                .Where(x => suborderIds.Contains(x.SubMasterOrderId))
+                .ToList();
+
+
+            var teamplateId = suborders.Select(o => o.TemplateId).ToList();
+
+            templateflowers = _db.TemplateFlower
+                             .Where(x => teamplateId.Contains(x.Id))
+                             .ToList();
+
+
+            var model = new OrderViewDto
+            {
+               MasterOrder = orders,
+               SubMasterOrder = suborders,
+               OrdertDetail = detailorders,
+               TemplateFlower = templateflowers
+            };
+
+            return View(model);
         }
 
 

@@ -142,7 +142,7 @@ namespace FlamingoModel.Models
         public int TemplateId { get; set; }
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
-        public string ResonDetail { get; set; }
+        public string? ResonDetail { get; set; }
         public int Reating { get; set; }
         public int Qty { get; set; }
         public DateTime Cdt { get; set; }
@@ -273,6 +273,14 @@ namespace FlamingoModel.Models
     {
         public List<SubOrderRequestDto> OrderSubDraft { get; set; } = new();
         public List<DetailCustomRequestDto> OrderDetailDraft { get; set; } = new();
+    }
+
+    public class OrderViewDto
+    {
+        public List<MasterOrderModel> MasterOrder { get; set; }
+        public List<SubMasterOrderModel> SubMasterOrder { get; set; }
+        public List<DetailOrderModel> OrdertDetail { get; set; }
+        public List<TemplateFlowerModel> TemplateFlower { get; set; }
     }
 }
 

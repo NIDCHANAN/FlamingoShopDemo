@@ -100,7 +100,7 @@ namespace FlamingoShopDemo.Controllers
         {
             { "grant_type", "authorization_code" },
             { "code", code },
-            { "redirect_uri", "https://localhost:7283/Home/LineCallback" },
+            { "redirect_uri", "https://157.85.97.187/Home/LineCallback" },
             { "client_id", _config["Line:ChannelId"] },
             { "client_secret", _config["Line:ChannelSecret"] }
         };

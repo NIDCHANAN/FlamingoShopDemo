@@ -143,7 +143,17 @@ function renderCart() {
         });
 
 
-        totalEls.forEach(el => el.innerText = "฿0");
+        totalEls.forEach(el => {
+            el.innerText = formatTHB(0).toLocaleString();
+        });
+
+
+        totalCheckout.forEach(el => {
+            el.innerText = formatTHB(0).toLocaleString();
+            localStorage.setItem("subTotal", 0);
+
+        });
+
         return;
     }
 
@@ -152,7 +162,13 @@ function renderCart() {
 
     cart.forEach(c => {
 
-        total += c.price * (c.qty || 1);
+        const price = parseFloat(
+            String(c.price).replace(/[^0-9.-]+/g, "")
+        ) || 0;
+
+        const qty = parseInt(c.qty) || 1;
+
+        total += price * qty;
 
         const itemHTML = `
                             <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
