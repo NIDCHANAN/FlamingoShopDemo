@@ -14,47 +14,77 @@ namespace FlamingoShopDemo.Controllers.Admin
         {
             _db = db;
         }
-        public IActionResult Index(DateTime dateSort)
+        public IActionResult Index(DateTime? dateSort)
         {
             ViewBag.role = "admin";
 
-            var thaiTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(
-                               DateTime.UtcNow,
-                               "SE Asia Standard Time"
-                           );
-            var today = thaiTime.Date;
+            var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            if (dateSort ==  DateTime.MinValue )
+            var masterQuery = _db.MasterOrder.AsQueryable();
+
+            if (!dateSort.HasValue)
             {
-                var masterOrder = _db.MasterOrder
-                                .Where(x => x.OrderDate >= today && x.OrderDate < tomorrow)
-                                .ToList();
-                var user  = _db.User.ToList();
-
-                var model = new MonitorViewDto
-                {
-                    masterOrder = masterOrder,
-                    user = user
-                };
-
-                return View(model);
+                masterQuery = masterQuery
+                    .Where(x => x.OrderDate >= today && x.OrderDate < tomorrow);
             }
-            else 
+            else
             {
-                var masterOrder = _db.MasterOrder.Where(x => x.OrderDate.Date == dateSort.Date).ToList();
-                var user = _db.User.ToList();
+                var startDate = dateSort.Value.Date;
+                var endDate = startDate.AddDays(1);
 
-
-                var model = new MonitorViewDto
-                {
-                    masterOrder = masterOrder,
-                    user = user
-                };
-
-                return View(model);
-
+                masterQuery = masterQuery
+                    .Where(x => x.OrderDate >= startDate && x.OrderDate < endDate);
             }
+
+            var masterOrder = masterQuery.ToList();
+
+            var masterIds = masterOrder.Select(x => x.Id).ToList();
+            var subOrder = new List<SubMasterOrderModel>();
+            if (masterIds.Any())
+            {
+                subOrder = _db.SubMasterOrder
+                    .Where(x => masterIds.Contains(x.MasterOrderId))
+                    .ToList();
+            }
+
+
+            var submasterIds = subOrder.Select(x => x.TemplateId).ToList();
+            var TempFlower = new List<TemplateFlowerModel>();
+            if (submasterIds.Any())
+            {
+                TempFlower = _db.TemplateFlower
+                    .Where(x => submasterIds.Contains(x.Id))
+                    .ToList();
+            }
+
+            var user = _db.User.ToList();
+
+            var model = new MonitorViewDto
+            {
+                masterOrder = masterOrder,
+                SubMasterOrder = subOrder,
+                TemplateFlower = TempFlower,
+                user = user
+            };
+
+            return View(model);
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int OrderId, int Status)
+        {
+           
+            var order = _db.MasterOrder.FirstOrDefault(x => x.Id == OrderId);
+            if (order != null)
+            {
+                order.Status = Status;
+                _db.SaveChanges();
+            }
+
+            return Json(new { success = true });
+        }
+
     }
 }

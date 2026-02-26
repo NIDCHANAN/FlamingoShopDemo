@@ -138,13 +138,13 @@ namespace FlamingoModel.Models
         [Key]
         public int Id { get; set; }
         public int MasterOrderId { get; set; }
-        public long GroupCustomerId { get; set; }
-        public int TemplateId { get; set; }
+        public long? GroupCustomerId { get; set; }
+        public int? TemplateId { get; set; }
         public decimal Price { get; set; }
-        public decimal Discount { get; set; }
+        public decimal? Discount { get; set; }
         public string? ResonDetail { get; set; }
-        public int Reating { get; set; }
-        public int Qty { get; set; }
+        public int? Reating { get; set; }
+        public int? Qty { get; set; }
         public DateTime Cdt { get; set; }
         public DateTime Udt { get; set; }
 
@@ -172,6 +172,7 @@ namespace FlamingoModel.Models
         public List<TemplateFlowerModel> Template { get; set; }
         public List<TemeplateCategoryDto> TempDetail { get; set; }
         public List<LogAddCategoryDetailModel> ProductPrice { get; set; }
+        public List<SubMasterOrderModel> SubOrder { get; set; }
     }
 
     public class AddProductDto : CategoryDetailModel
@@ -249,6 +250,9 @@ namespace FlamingoModel.Models
     public class MonitorViewDto
     {
         public List<MasterOrderModel> masterOrder { get; set; }
+        public List<SubMasterOrderModel> SubMasterOrder { get; set; }
+        public List<DetailOrderModel> OrdertDetail { get; set; }
+        public List<TemplateFlowerModel> TemplateFlower { get; set; }
         public List<UserModel> user { get; set; }
     }
     public class DetailCustomRequestDto

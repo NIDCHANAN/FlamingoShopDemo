@@ -9,25 +9,17 @@ const statusMap = {
     4: 'Arrived'
 };
 
+function changeDate(value) {
+    const baseUrl = changeDateSort;
 
+    if (!value) {
+        window.location.href = baseUrl;
+        return;
+    }
 
-document.querySelectorAll('.order-card').forEach(card => {
-    const status = parseInt(card.dataset.status); // 1-4
-    const steps = card.querySelectorAll('.progress-step');
-    const labels = card.querySelectorAll('.step-label');
+    window.location.href = baseUrl + '?dateSort=' + value;
+}
 
-    steps.forEach((step, index) => {
-        if (index < status) {
-            step.classList.add('active');
-        }
-    });
-
-    labels.forEach((label, index) => {
-        if (index >= status) {
-            label.classList.add('inactive');
-        }
-    });
-});
 
 document.querySelectorAll('.btn-detail').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -90,19 +82,19 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
 //}
 
 // initial
-document.querySelectorAll('.order-card').forEach(card => {
-    renderProgress(card, parseInt(card.dataset.status));
-});
+//document.querySelectorAll('.order-card').forEach(card => {
+//    renderProgress(card, parseInt(card.dataset.status));
+//});
 
-// dropdown click
-document.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', function (e) {
-        e.preventDefault();
-        const status = parseInt(this.dataset.status);
-        const card = this.closest('.order-card');
-        renderProgress(card, status);
-    });
-});
+//// dropdown click
+//document.querySelectorAll('.dropdown-item').forEach(item => {
+//    item.addEventListener('click', function (e) {
+//        e.preventDefault();
+//        const status = parseInt(this.dataset.status);
+//        const card = this.closest('.order-card');
+//        renderProgress(card, status);
+//    });
+//});
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -122,6 +114,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
             card.appendChild(badge);
         }
+    });
+
+
+    document.querySelectorAll('.order-card').forEach(card => {
+
+        const status = parseInt(card.dataset.status); 
+        const steps = card.querySelectorAll('.progress-step');
+        const labels = card.querySelectorAll('.step-label');
+
+        steps.forEach((step, index) => {
+
+            step.classList.remove('done', 'current');
+            labels[index].classList.remove('done', 'current');
+
+            if (index < status) {
+                step.classList.add('done');
+                labels[index].classList.add('done');
+            }
+            else if (index === status) {
+                step.classList.add('current');
+                labels[index].classList.add('current');
+            }
+
+        });
+
+    });
+
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+
+        item.addEventListener('click', function (e) {
+
+            e.preventDefault();
+
+            const newStatus = this.dataset.status;
+            const card = this.closest('.order-card');
+            const orderId = card.dataset.orderId;
+
+            $.ajax({
+                url: UpdateStatus,
+                type: "POST",
+                data: {
+                    OrderId: orderId,
+                    Status: newStatus
+                },
+                success: function (res) {
+
+                    if (res.success) {
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "ยืนยันสถานะเรียบร้อย"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                }
+            });
+
+        });
+
     });
 
 });

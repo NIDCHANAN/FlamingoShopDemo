@@ -54,13 +54,16 @@ namespace FlamingoShopDemo.Controllers.Admin
                                 )
                                 .ToList();
 
+            var SubMasterOrder = _db.SubMasterOrder.ToList();
+
             var model = new ProductViewDto
             {
                 Groups = GroupDetail,
                 Products = ProductDetail,
                 Images = ProductImage,
                 Template = TemplateMaster,
-                TempDetail = TemplateDetail
+                TempDetail = TemplateDetail,
+                SubOrder = SubMasterOrder
             };
 
             return View(model);

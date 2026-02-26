@@ -2,10 +2,8 @@
 @model MonitorViewDto;
 
 <div class="container-fluid py-4">
-
-
-   <div class="d-flex flex-column flex-md-row 
-                justify-content-between align-items-start align-items-md-center 
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between align-items-start align-items-md-center
                 gap-3 mb-4">
 
         <h4 class="fw-bold text-pink mb-0">
@@ -14,25 +12,28 @@
 
         <div class="order-date-filter d-flex align-items-center">
             <i class="bi bi-calendar-event me-2"></i>
-            <input type="date" id="orderDateFilter" 
-                   class="form-control form-control-sm">
+            <input type="date" id="orderDateFilter"
+                   class="form-control form-control-sm" onchange="changeDate(this.value);">
         </div>
 
     </div>
 
-<div class="row g-4">
-    <!-- Card 1 -->
+    <div class="row g-4">
+        <!-- Card 1 -->
         @foreach (var order in Model.masterOrder)
         {
+            var userNM = Model.user.FirstOrDefault(u => u.Id == order.UserId)?.Name ?? null;
+
+            var detail = Model.SubMasterOrder
+            .Where(x => x.MasterOrderId == order.Id || x.GroupCustomerId != 0)
+            .ToList();
+
             <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
-                <div class="order-card " data-status="@order.Status" data-order-id="Y34XDHR">
+                <div class="order-card" data-status="@order.Status" data-order-id="@order.Id">
                     <div class="order-header">
                         <div class="order-id">ORDER #@order.OrderNo</div>
-                        <small class="text-pink fw-bold">@order.OrderDate.ToString("yyyy-mm-dd")</small>
+                        <small class="text-pink fw-bold">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</small>
                     </div>
-                    @{
-                        var userNM = Model.user.FirstOrDefault(u => u.Id == order.UserId)?.Name ?? null;
-                    }
                     <div class="tracking">
                         ลูกค้า : <strong>@(userNM ?? order.UserIdLine)</strong>
                     </div>
@@ -45,8 +46,8 @@
                     </div>
 
                     <div class="step-labels  mb-3">
-                        <div class="step-label"><i class="bi bi-card-checklist"></i><br>Pending Payment</div>
-                        <div class="step-label"><i class="bi bi-box"></i><br>Prepare Order</div>
+                        <div class="step-label"><i class="bi bi-card-checklist"></i><br>Pending</div>
+                        <div class="step-label"><i class="bi bi-box"></i><br>Prepare</div>
                         <div class="step-label"><i class="bi bi-truck"></i><br>Delivery</div>
                         <div class="step-label"><i class="bi bi-shop"></i><br>Finish</div>
                     </div>
@@ -60,11 +61,31 @@
                                     aria-expanded="false">
                                 เปลี่ยนสถานะ
                             </button>
-                            <ul class="dropdown-menu w-100">
-                                <li><a class="dropdown-item" href="#" data-status="1">Pending Payment</a></li>
-                                <li><a class="dropdown-item" href="#" data-status="2">Prepare Order</a></li>
-                                <li><a class="dropdown-item" href="#" data-status="3">Delivery</a></li>
-                                <li><a class="dropdown-item" href="#" data-status="4">Finish</a></li>
+                              <ul class="dropdown-menu w-100">
+                                <li>
+                                    <a class="dropdown-item @(order.Status == 0 ? "active" : "")"
+                                       href="#" data-status="0">
+                                        Pending
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item @(order.Status == 1 ? "active" : "")"
+                                       href="#" data-status="1">
+                                        Prepare
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item @(order.Status == 2 ? "active" : "")"
+                                       href="#" data-status="2">
+                                        Delivery
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item @(order.Status == 3 ? "active" : "")"
+                                       href="#" data-status="3">
+                                        Finish
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -76,70 +97,120 @@
                 </div>
             </div>
 
+                <div class="col-12 d-none order-detail" id="detail-@order.Id">
+                <div class="order-card mt-3 order-detail-card">
+
+                    <!-- Header -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="detail-icon me-2">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <h6 class="mb-0 fw-semibold">รายละเอียดคำสั่งซื้อ</h6>
+                    </div>
+
+                    <div class="row g-4">
+
+                        <!-- Product List -->
+                        <div class="col-md-6">
+                            <div class="detail-section">
+                                <div class="section-title">
+                                    <i class="bi bi-box-seam me-2"></i>รายการสินค้า
+                                </div>
+
+                                @{
+                                    decimal subtotal = 0;
+                                }
+
+                                <ul class="product-list">
+                                    @foreach (var detailSub in detail)
+                                    {
+                                        var name = Model.TemplateFlower
+                                                    .Where(x => x.Id == detailSub.TemplateId)
+                                                    .Select(x => x.Name)
+                                                    .FirstOrDefault();
+
+                                        decimal price = detailSub.Price;
+                                        int qty = detailSub.Qty ?? 0;
+
+                                        decimal total = price * qty;
+
+                                        subtotal += total;
+                                        <li class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <div>@(name ?? "Customization")</div>
+                                                <small class="text-muted">
+                                                    @price.ToString("N2") x @detailSub.Qty
+                                                </small>
+                                            </div>
+                                            <div class="fw-semibold">
+                                                ฿ @total.ToString("N2")
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+
+                                <hr />
+
+                                @{
+                                    var discount = order.Discount ?? 0;
+                                    var grandTotal = subtotal - discount;
+                                }
+
+                                <div class="d-flex justify-content-between">
+                                    <span>ยอดรวม</span>
+                                    <span>฿ @subtotal.ToString("N2")</span>
+                                </div>
+
+                                @if (discount > 0)
+                                {
+                                    <div class="d-flex justify-content-between text-danger">
+                                        <span>ส่วนลด</span>
+                                        <span>- ฿ @discount.ToString("N2")</span>
+                                    </div>
+                                }
+
+                                <div class="d-flex justify-content-between fw-bold mt-2 fs-5 text-pink">
+                                    <span>ยอดสุทธิ</span>
+                                    <span>฿ @grandTotal.ToString("N2")</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-md-6">
+                            <div class="detail-section">
+                                <div class="section-title">
+                                    <i class="bi bi-geo-alt me-2"></i>ที่อยู่จัดส่ง
+                                </div>
+
+                                <div class="address-box">
+                                    <div class="fw-semibold">@order.fullNameRecrive</div>
+                                    <div style="white-space: pre-line;">
+                                        @order.AddressDelivary
+                                    </div>
+                                    <div class="phone">
+                                        <i class="bi bi-telephone me-1"></i>@order.TelephoneOrder
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         }
 
-</div>
-
-</div>
-
-<!-- Detail Card (อยู่นอก col แต่ใน row เดียวกัน) -->
-<div class="col-12 d-none order-detail" id="detail-Y34XDHR">
-    <div class="order-card mt-3 order-detail-card">
-
-        <!-- Header -->
-        <div class="d-flex align-items-center mb-4">
-            <div class="detail-icon me-2">
-                <i class="bi bi-receipt"></i>
-            </div>
-            <h6 class="mb-0 fw-semibold">รายละเอียดคำสั่งซื้อ</h6>
-        </div>
-
-        <div class="row g-4">
-
-            <!-- Product List -->
-            <div class="col-md-6">
-                <div class="detail-section">
-                    <div class="section-title">
-                        <i class="bi bi-box-seam me-2"></i>รายการสินค้า
-                    </div>
-
-                    <ul class="product-list">
-                        <li>
-                            <span>ช่อที่ 1</span>
-                            <span class="qty">x1</span>
-                        </li>
-                        <li>
-                            <span>ช่อที่ 2</span>
-                            <span class="qty">x2</span>
-                        </li>
-                        <li>
-                            <span>ช่อที่ 3</span>
-                            <span class="qty">x5</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Address -->
-            <div class="col-md-6">
-                <div class="detail-section">
-                    <div class="section-title">
-                        <i class="bi bi-geo-alt me-2"></i>ที่อยู่จัดส่ง
-                    </div>
-
-                    <div class="address-box">
-                        <div class="fw-semibold">คุณสมหญิง ใจดี</div>
-                        <div>99/9 ถนนสุขุมวิท</div>
-                        <div>แขวงคลองตัน เขตวัฒนา</div>
-                        <div>กรุงเทพฯ 10110</div>
-                        <div class="phone">
-                            <i class="bi bi-telephone me-1"></i>089-999-9999
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
     </div>
 </div>
+
+
+
+
+<script>
+    var changeDateSort =  '@Url.Action("Index", "Monitor")';
+    var UpdateStatus =  '@Url.Action("UpdateStatus", "Monitor")';
+
+
+</script>
 <script src="~/js/order.js" asp-append-version="true"></script>

@@ -242,7 +242,14 @@
 
                         } *@
                         <td>@temp.Price</td>
-                        <td>6410<br><small class="text-muted">1 yr 2 mo</small></td>
+                            @{
+                                var totalOrder = Model.SubOrder.Where(x => x.TemplateId == temp.Id).Count();
+                                var cdt = temp.Cdt;
+
+                                var daysDiff = (DateTime.Now - cdt).Days;
+
+                            }
+                            <td>@totalOrder<br><small class="text-muted">@daysDiff day</small></td>
                         <td>
                             <div class="d-flex justify-content-center gap-2">
 
