@@ -1,4 +1,5 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http
+
 <div class="container-app">
     <div class="row g-4">
 
@@ -69,6 +70,21 @@
                     <span>Shipping</span>
                     <span>฿100</span>
                 </div>
+
+                <div class="summary-row ">
+                    <span>Discount Code</span>
+                    <div class="d-flex gap-2 w-100">
+                        <input type="text" id="discountCode" class="form-control" placeholder="Enter code">
+                        <button class="btn btn-outline-dark" onclick="applyDiscount()">Apply</button>
+                    </div>
+                </div>
+                <small id="discountMessage" class="text-success"></small>
+
+                <div class="summary-row d-flex justify-content-between">
+                    <span>Discount</span>
+                    <span id="discountAmount">- ฿0</span>
+                </div>
+
                 <hr>
                 <div class="summary-row d-flex justify-content-between">
                     <span>Total</span>
@@ -167,6 +183,7 @@
     var addOrderMaster = '@Url.Action("orderMaster", "Customer")';
     var addOrderSubMaster = '@Url.Action("orderSubMaster", "Customer")';
     var UploadSlip =  '@Url.Action("UploadSlip", "Customer")';
+    var checkPromotion =  '@Url.Action("checkPromotion", "Customer")';
 </script>
 
 <script src="~/js/checkOurOrder.js" asp-append-version="true"></script>

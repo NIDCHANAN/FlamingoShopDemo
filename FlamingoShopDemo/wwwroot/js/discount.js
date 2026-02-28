@@ -97,10 +97,10 @@ function onClickDeleteDiscount(Id) {
 function onClickUpdateDiscount(Id) {
 
     var discount = new FormData();
-    discount.append("Name", $('#txtUpdateNameDis').val());
-    discount.append("PercentCal", $('#updatePercentCal').val());
-    discount.append("StartDate", $('#txtUpdateStartDate').val());
-    discount.append("EndDate", $('#txtUpdateEndDate').val());
+    discount.append("Name", $('#txtUpdateNameDis_' + Id).val());
+    discount.append("PercentCal", $('#updatePercentCal_' + Id).val());
+    discount.append("StartDate", $('#txtUpdateStartDate_' + Id).val());
+    discount.append("EndDate", $('#txtUpdateEndDate_' + Id).val());
     discount.append("Id", Id);
 
     $.ajax({

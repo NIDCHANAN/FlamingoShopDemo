@@ -1,7 +1,8 @@
 ﻿let map;
 let marker;
 const input = document.getElementById("deliveryDateTime");
-
+let promotionCode;
+let discount;
 
 
 function init() {
@@ -10,9 +11,9 @@ function init() {
     var total = formatTHB(subtotal + shipping);
     $('#totalPayment').text(total);
     $('#paymentAmountModal').text(total);
-
+    promotionCode = null;
+    discount = 0;
     initMap();
-
 }
 
 function formatTHB(amount) {
@@ -125,6 +126,8 @@ function onClickConfirm() {
     var subtotal = parseInt(localStorage.getItem("subTotal")) || 0;
     var shipping = 100;
     orderDraft.append("TotalPrice", (subtotal + shipping));
+    orderDraft.append("PromotionId", promotionCode);
+    orderDraft.append("Discount", discount);
 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     cart.forEach((item, index) => {
@@ -214,6 +217,72 @@ function confirmPayment() {
         }
     });
 }
+
+function initSummary() {
+
+    var subtotal = parseInt(localStorage.getItem("subTotal")) || 0;
+    var shipping = 100;
+
+    document.querySelector(".paymentAmount").innerText = subtotal + " ฿";
+    document.getElementById("totalPayment").innerText = (subtotal + shipping) + " ฿";
+}
+
+function applyDiscount() {
+
+    var subtotal = parseInt(localStorage.getItem("subTotal")) || 0;
+    var shipping = 100;
+    var code = document.getElementById("discountCode").value.trim().toUpperCase();
+
+    if (!code) {
+        document.getElementById("discountMessage").innerText = "Please enter discount code";
+        return;
+    }
+
+    fetch(checkPromotion, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: code })
+    })
+        .then(res => res.json())
+        .then(res => {
+         
+            if (!res.found) {
+
+                document.getElementById("discountMessage").innerText = "Invalid discount code";
+                document.getElementById("discountAmount").innerText = "- ฿0";
+
+                var total = formatTHB(subtotal + shipping);
+
+
+                document.getElementById("totalPayment").innerText = total;
+                return;
+            }
+
+
+            var percent = res.data;
+            var tempdiscount = subtotal * (percent / 100);
+            var total = formatTHB(subtotal + shipping - tempdiscount);
+
+            promotionCode = res.id;
+            discount = tempdiscount;
+
+
+            document.getElementById("discountMessage").innerText = percent + "% discount applied!";
+            document.getElementById("discountAmount").innerText = "- ฿" + tempdiscount.toFixed(2);
+            document.getElementById("totalPayment").innerText = total;
+
+            $('#paymentAmountModal').text(total);
+
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("discountMessage").innerText = "Error checking promotion";
+        });
+}
+
+initSummary();
 
 function previewSlip(event) {
     const reader = new FileReader();

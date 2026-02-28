@@ -146,7 +146,7 @@ namespace FlamingoShopDemo.Controllers.Customer
                     OrderDate = request.OrderDate,
                     AddressDelivary = request.AddressDelivary,
                     TotalPrice = request.TotalPrice,
-                    Discount = 0,
+                    Discount = request.Discount,
                     PaymentType = 0,
                     MasterDelivaryId = 1,
                     DelivaryNo = "",
@@ -155,7 +155,8 @@ namespace FlamingoShopDemo.Controllers.Customer
                     Udt = DateTime.Now,
                     TelephoneOrder = request.TelephoneOrder,
                     fullNameRecrive = request.fullNameRecrive,
-                    OrderNo = orderNo
+                    OrderNo = orderNo,
+                    PromotionId = request.PromotionId
                 };
 
                 _db.MasterOrder.Add(addOrder);
@@ -332,6 +333,61 @@ http://157.85.97.187/Monitor/index
 
 
             return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult Review(int OrderId, int rang, string comment)
+        {
+            var master = _db.SubMasterOrder
+                .Where(g =>
+                    g.MasterOrderId == OrderId
+                )
+                .ToList();
+
+            if (master == null)
+                return Ok(new { found = false });
+
+            foreach (var detail in master)
+            {
+                detail.Reating = rang;
+                detail.ResonDetail = comment;
+
+                _db.SubMasterOrder.Update(detail);
+            }
+            _db.SaveChanges();
+
+            return Ok(new
+            {
+                found = true
+            });
+
+        }
+
+        [HttpPost]
+        public IActionResult checkPromotion([FromBody]PromotionViewDto request)
+        {
+            var today = DateTime.Today;
+
+            var checkPromotion = _db.Promotion
+                .Where(g =>
+                    g.StatusUse == 1 &&
+                    g.Name.Trim().ToUpper() == request.Name.Trim().ToUpper() &&
+                    g.StartDate.Date <= today &&
+                    g.EndDate.Date >= today
+                )
+                .FirstOrDefault();
+
+
+            if (checkPromotion == null)
+                return Ok(new { found = false });
+
+            return Ok(new
+            {
+                found = true,
+                data = checkPromotion.PercentCal,
+                id = checkPromotion.Id
+            });
+
         }
 
         public IActionResult History()

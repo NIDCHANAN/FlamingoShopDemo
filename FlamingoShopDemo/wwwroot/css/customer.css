@@ -737,7 +737,16 @@ input, select {
     box-shadow: 0 20px 50px rgba(0,0,0,0.08);
 }
 
+.star {
+    cursor: pointer;
+    color: #ddd;
+    transition: .2s;
+}
 
+    .star.active {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
 
 @keyframes dropdownFade {
     from {

@@ -172,19 +172,19 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="txtNameDis" class="form-label">ชื่อส่วนลด</label>
-                            <input type="text" id="txtUpdateNameDis" class="form-control"  value="@editdis.Name" placeholder="เช่น SUMMER2026">
+                            <label for="txtUpdateNameDis_@editdis.Id" class="form-label">ชื่อส่วนลด</label>
+                            <input type="text" id="txtUpdateNameDis_@editdis.Id" class="form-control" value="@editdis.Name" placeholder="เช่น SUMMER2026">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">ประเภทส่วนลด</label>
-                            <select class="form-select" id="discountType">
+                            <select class="form-select" id="discountType_@editdis.Id">
                                 <option value="percent">เปอร์เซ็นต์ (%)</option>
                                 @* <option value="amount">จำนวนเงิน (บาท)</option> *@
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">มูลค่าส่วนลด</label>
-                            <input type="number" id="updatePercentCal" value="@editdis.PercentCal" class="form-control" placeholder="เช่น 10">
+                            <input type="number" id="updatePercentCal_@editdis.Id" value="@editdis.PercentCal" class="form-control" placeholder="เช่น 10">
                         </div>
                         @* <div class="col-md-6">
                             <label class="form-label">สถานะ</label>
@@ -196,11 +196,11 @@
                         </div> *@
                         <div class="col-md-6">
                             <label class="form-label">วันเริ่มต้น</label>
-                            <input type="date" id="txtUpdateStartDate" value="@editdis.StartDate.ToString("yyyy-MM-dd")" class="form-control">
+                            <input type="date" id="txtUpdateStartDate_@editdis.Id" value="@editdis.StartDate.ToString("yyyy-MM-dd")" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">วันสิ้นสุด</label>
-                            <input type="date" id="txtUpdateEndDate" value="@editdis.EndDate.ToString("yyyy-MM-dd")" class="form-control">
+                            <input type="date" id="txtUpdateEndDate_@editdis.Id" value="@editdis.EndDate.ToString("yyyy-MM-dd")" class="form-control">
                         </div>
                     </div>
                 </div>

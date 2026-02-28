@@ -130,6 +130,7 @@ namespace FlamingoModel.Models
         public string? fullNameRecrive { get; set; }
         public string? UserIdLine { get; set; }
         public string? OrderNo { get; set; }
+        public int? PromotionId { get; set; }
 
     }
 
@@ -285,6 +286,13 @@ namespace FlamingoModel.Models
         public List<SubMasterOrderModel> SubMasterOrder { get; set; }
         public List<DetailOrderModel> OrdertDetail { get; set; }
         public List<TemplateFlowerModel> TemplateFlower { get; set; }
+    }
+
+    public class PromotionViewDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Decimal PercentCal { get; set; }
     }
 }
 
