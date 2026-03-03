@@ -279,7 +279,7 @@ function checkTemplate() {
            
         },
         error: function () {
-            Swal.fire('Error', 'Can not Delete', 'error');
+            Swal.fire('Error', 'Please Contact tp admin', 'error');
         }
     });
 }

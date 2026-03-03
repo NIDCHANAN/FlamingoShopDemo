@@ -326,7 +326,7 @@ namespace FlamingoShopDemo.Controllers.Customer
 📅 วันที่สั่งซื้อ: {order.OrderDate:dd/MM/yyyy HH:mm}
 
  กรุณาตรวจสอบรายละเอียด:
-http://157.85.97.187/Monitor/index
+https://flamingoflower.digital/Monitor
                                             ";
 
             SendLineMessage(HttpContext.Session.GetString("userIdLine"), message);

@@ -1,7 +1,7 @@
 ﻿function loginWithLine() {
 
     const channelId = "2009182005";
-    const redirectUri = encodeURIComponent("https://157.85.97.187/Home/LineCallback");
+    const redirectUri = encodeURIComponent("https://flamingoflower.digital/Home/LineCallback");
     const state = "abc123"; // กัน CSRF
 
     const url =
