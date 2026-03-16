@@ -395,7 +395,7 @@ https://flamingoflower.digital/Monitor
             ViewBag.role = "customer";
 
             var sessionUserId = HttpContext.Session.GetInt32("UserId");
-            var sessionUserIdLine = HttpContext.Session.GetString("userIdLine");
+            var sessionUserIdLine = HttpContext.Session.GetString("UserName");
 
             List<MasterOrderModel> orders;
             List<SubMasterOrderModel> suborders;
@@ -407,8 +407,6 @@ https://flamingoflower.digital/Monitor
                 orders = _db.MasterOrder
                     .Where(x => x.UserId == sessionUserId.Value)
                     .ToList();
-
-
             }
             else if (!string.IsNullOrEmpty(sessionUserIdLine))
             {

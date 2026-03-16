@@ -41,7 +41,7 @@
     <div class="row g-4" id="productList">
         @foreach (var product in Model.Template)
         {
-            var img = Model.Images.Where(x => x.RelationId == product.Id).FirstOrDefault();
+            var img = Model.Images.Where(x => x.RelationId == product.Id && x.TypeImage == 2).FirstOrDefault();
 
             <div class="col-12 col-md-3">
                 <div class="product-card text-center">
